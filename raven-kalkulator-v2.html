@@ -1,0 +1,2281 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Raven Kalkulator v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* =========================================
+   RAVEN KALKULATOR v2 — DARK GLOW THEME
+   ========================================= */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#06060F;
+  --s1:#0C0C1A;
+  --s2:#121224;
+  --s3:#181830;
+  --s4:#1E1E38;
+  --b1:#252540;
+  --b2:#353558;
+  --ink:#F0F0FF;
+  --ink2:#B8B8D8;
+  --ink3:#7878A8;
+  --ink4:#484870;
+  --g1:#8B5CF6;
+  --g2:#A78BFA;
+  --g3:#C4B5FD;
+  --g4:#06B6D4;
+  --g5:#22D3EE;
+  --gp:#EC4899;
+  --gg:#10B981;
+  --gy:#F59E0B;
+  --gr:#EF4444;
+  --r:10px;--rl:16px;--rxl:24px;
+  --sh:0 0 0 1px rgba(139,92,246,0.15);
+  --shg:0 0 20px rgba(139,92,246,0.25),0 0 40px rgba(139,92,246,0.1);
+  --t:all 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+
+html{font-size:16px;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:'Syne',sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  min-height:100vh;
+  overflow-x:hidden;
+  overscroll-behavior:none;
+}
+
+/* ===== BG AMBIENCE ===== */
+.bg-orb{
+  position:fixed;pointer-events:none;z-index:0;border-radius:50%;
+  filter:blur(80px);opacity:0.06;
+}
+.bg-orb-1{width:500px;height:500px;background:var(--g1);top:-100px;left:-100px}
+.bg-orb-2{width:400px;height:400px;background:var(--gp);bottom:-80px;right:-80px}
+.bg-orb-3{width:300px;height:300px;background:var(--g4);top:50%;left:50%;transform:translate(-50%,-50%)}
+
+/* ===== SPLASH SCREEN ===== */
+#splash{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--bg);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:20px;
+  transition:opacity 0.6s ease, transform 0.6s ease;
+}
+#splash.hide{opacity:0;transform:scale(1.05);pointer-events:none}
+
+.splash-logo{
+  width:80px;height:80px;
+  background:linear-gradient(135deg,var(--g1),var(--gp));
+  border-radius:24px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 40px rgba(139,92,246,0.5),0 0 80px rgba(139,92,246,0.2);
+  animation:splashPulse 1.5s ease infinite;
+}
+@keyframes splashPulse{
+  0%,100%{box-shadow:0 0 40px rgba(139,92,246,0.5),0 0 80px rgba(139,92,246,0.2)}
+  50%{box-shadow:0 0 60px rgba(139,92,246,0.8),0 0 120px rgba(139,92,246,0.3)}
+}
+.splash-title{
+  font-size:2rem;font-weight:800;letter-spacing:-0.03em;
+  background:linear-gradient(120deg,#fff 20%,var(--g3) 60%,var(--g4));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:fadeUp 0.6s 0.3s both;
+}
+.splash-sub{
+  font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--ink4);font-family:'JetBrains Mono',monospace;
+  animation:fadeUp 0.6s 0.5s both;
+}
+.splash-bar{
+  width:160px;height:2px;background:var(--s3);border-radius:2px;overflow:hidden;
+  animation:fadeUp 0.6s 0.7s both;
+}
+.splash-bar-fill{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,var(--g1),var(--gp));
+  border-radius:2px;
+  animation:splashLoad 1.8s 0.8s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+@keyframes splashLoad{to{width:100%}}
+
+/* ===== APP LAYOUT ===== */
+.app{
+  display:flex;min-height:100vh;max-width:1280px;
+  margin:0 auto;padding:20px 16px;gap:20px;
+  position:relative;z-index:1;
+  opacity:0;transition:opacity 0.5s ease;
+}
+.app.visible{opacity:1}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:200px;flex-shrink:0;
+  display:flex;flex-direction:column;gap:4px;
+  animation:slideRight 0.6s 0.2s both;
+}
+@keyframes slideRight{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+
+.sidebar-brand{
+  display:flex;align-items:center;gap:10px;
+  padding:16px 12px 24px;
+}
+.brand-icon{
+  width:36px;height:36px;
+  background:linear-gradient(135deg,var(--g1),var(--gp));
+  border-radius:10px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 12px rgba(139,92,246,0.4);
+}
+.brand-text{
+  font-size:1.1rem;font-weight:800;letter-spacing:-0.02em;
+  background:linear-gradient(120deg,#fff,var(--g3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.brand-ver{
+  font-size:0.55rem;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--g2);font-family:'JetBrains Mono',monospace;
+  display:block;margin-top:1px;
+  -webkit-text-fill-color:var(--g2);
+}
+
+.nav-section-label{
+  font-size:0.58rem;font-weight:700;letter-spacing:0.15em;
+  text-transform:uppercase;color:var(--ink4);
+  padding:8px 12px 4px;font-family:'JetBrains Mono',monospace;
+}
+.nav-item{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 12px;border-radius:var(--r);
+  border:1px solid transparent;
+  cursor:pointer;transition:var(--t);
+  font-size:0.8rem;font-weight:600;color:var(--ink3);
+  background:transparent;width:100%;text-align:left;
+  position:relative;overflow:hidden;
+}
+.nav-item::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,var(--g1),var(--gp));
+  border-radius:0 2px 2px 0;opacity:0;transition:var(--t);
+}
+.nav-item:hover{background:var(--s2);color:var(--ink2);border-color:var(--b1)}
+.nav-item.active{
+  background:linear-gradient(135deg,rgba(139,92,246,0.12),rgba(236,72,153,0.06));
+  color:var(--g3);border-color:rgba(139,92,246,0.3);
+}
+.nav-item.active::before{opacity:1}
+.nav-icon{
+  width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+  border-radius:6px;background:var(--s3);flex-shrink:0;transition:var(--t);
+}
+.nav-item.active .nav-icon{background:rgba(139,92,246,0.2)}
+.nav-icon svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* ===== MAIN ===== */
+.main{
+  flex:1;min-width:0;display:flex;flex-direction:column;gap:14px;
+  animation:slideUp 0.6s 0.3s both;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== DISPLAY ===== */
+.display{
+  background:linear-gradient(160deg,#0A0A20 0%,#06060F 100%);
+  border:1px solid rgba(139,92,246,0.2);
+  border-radius:var(--rl);padding:20px 22px 16px;
+  position:relative;overflow:hidden;
+  animation:borderGlow 4s ease infinite;
+}
+@keyframes borderGlow{
+  0%,100%{border-color:rgba(139,92,246,0.2)}
+  50%{border-color:rgba(139,92,246,0.45)}
+}
+.display::after{
+  content:'';position:absolute;top:0;left:-100%;
+  width:50%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(139,92,246,0.8),transparent);
+  animation:scanTop 4s ease infinite;
+}
+@keyframes scanTop{0%{left:-100%}100%{left:200%}}
+
+.disp-mode{
+  font-family:'JetBrains Mono',monospace;font-size:0.58rem;
+  letter-spacing:0.18em;text-transform:uppercase;color:var(--g2);
+  margin-bottom:10px;
+  text-shadow:0 0 10px rgba(167,139,250,0.5);
+}
+.disp-hist{
+  font-family:'JetBrains Mono',monospace;font-size:0.78rem;
+  color:var(--ink4);text-align:right;min-height:18px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:2px;
+}
+.disp-expr{
+  font-family:'JetBrains Mono',monospace;font-size:0.88rem;
+  color:var(--ink3);text-align:right;min-height:20px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:4px;
+}
+.disp-val{
+  font-family:'JetBrains Mono',monospace;font-size:2.6rem;font-weight:600;
+  color:#fff;text-align:right;line-height:1.1;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  text-shadow:0 0 24px rgba(255,255,255,0.12);
+  animation:numIn 0.15s ease both;
+}
+@keyframes numIn{from{opacity:0.4;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.disp-meta{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-top:12px;padding-top:12px;
+  border-top:1px solid rgba(139,92,246,0.1);
+}
+.mem-badge{
+  font-family:'JetBrains Mono',monospace;font-size:0.6rem;
+  color:var(--ink4);background:var(--s2);
+  padding:3px 8px;border-radius:4px;border:1px solid var(--b1);
+  transition:var(--t);
+}
+.mem-badge.on{color:var(--g3);background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.3);box-shadow:0 0 8px rgba(139,92,246,0.15)}
+.exp-btn{
+  font-size:0.66rem;font-weight:600;color:var(--ink3);
+  background:var(--s2);border:1px solid var(--b1);
+  border-radius:6px;padding:3px 9px;cursor:pointer;transition:var(--t);
+}
+.exp-btn:hover{color:var(--g3);border-color:rgba(139,92,246,0.4);box-shadow:0 0 8px rgba(139,92,246,0.15)}
+
+/* ===== CARD ===== */
+.card{
+  background:var(--s1);border:1px solid var(--b1);
+  border-radius:var(--rl);padding:18px;
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(139,92,246,0.3),transparent);
+}
+
+/* ===== PANELS ===== */
+.panel{display:none;animation:panelIn 0.25s ease both}
+.panel.active{display:block}
+@keyframes panelIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== CALC BUTTONS ===== */
+.btn-grid{display:grid;gap:7px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g5{grid-template-columns:repeat(5,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+
+.cb{
+  height:52px;border-radius:var(--r);border:1px solid var(--b1);
+  background:var(--s2);color:var(--ink2);
+  font-family:'JetBrains Mono',monospace;font-size:0.92rem;font-weight:500;
+  cursor:pointer;transition:var(--t);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.cb:hover{background:var(--s3);color:var(--ink);border-color:var(--b2);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.3)}
+.cb:active{transform:scale(0.96) translateY(0)}
+.cb.op{color:var(--g3);border-color:rgba(139,92,246,0.2);font-size:1.05rem}
+.cb.op:hover{border-color:rgba(139,92,246,0.5);box-shadow:0 0 12px rgba(139,92,246,0.15)}
+.cb.eq{
+  background:linear-gradient(135deg,var(--g1),var(--gp));
+  color:#fff;border:none;font-size:1.05rem;
+  box-shadow:0 0 16px rgba(139,92,246,0.35);
+}
+.cb.eq:hover{box-shadow:0 0 28px rgba(139,92,246,0.55);transform:translateY(-1px)}
+.cb.red{color:var(--gr);background:rgba(239,68,68,0.07);border-color:rgba(239,68,68,0.2)}
+.cb.red:hover{background:rgba(239,68,68,0.14);box-shadow:0 0 10px rgba(239,68,68,0.15)}
+.cb.cyan{color:var(--g5);border-color:rgba(6,182,212,0.2)}
+.cb.cyan:hover{border-color:rgba(6,182,212,0.4);box-shadow:0 0 10px rgba(6,182,212,0.15)}
+.cb.sm{height:44px;font-size:0.72rem;font-family:'Syne',sans-serif;font-weight:700}
+.cb.xs{height:40px;font-size:0.65rem;font-family:'Syne',sans-serif;font-weight:700}
+.cb.s2{grid-column:span 2}.cb.s3{grid-column:span 3}.cb.s4{grid-column:span 4}
+
+.ripple{
+  position:absolute;border-radius:50%;pointer-events:none;
+  background:rgba(139,92,246,0.2);transform:scale(0);
+  animation:rip 0.45s linear;
+}
+.cb.eq .ripple{background:rgba(255,255,255,0.2)}
+@keyframes rip{to{transform:scale(3);opacity:0}}
+
+/* ===== TABS ===== */
+.tab-bar{
+  display:flex;gap:3px;background:var(--s2);
+  border-radius:var(--r);padding:3px;margin-bottom:14px;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+}
+.tab-bar::-webkit-scrollbar{display:none}
+.tb{
+  flex:1 0 auto;padding:6px 10px;border:none;background:transparent;
+  border-radius:7px;font-family:'Syne',sans-serif;
+  font-size:0.68rem;font-weight:700;color:var(--ink3);cursor:pointer;transition:var(--t);
+  white-space:nowrap;
+}
+.tb.active{
+  background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(236,72,153,0.1));
+  color:var(--g3);
+}
+
+/* ===== SECTION TITLE ===== */
+.stitle{
+  font-size:0.6rem;font-weight:700;letter-spacing:0.14em;
+  text-transform:uppercase;color:var(--ink4);
+  font-family:'JetBrains Mono',monospace;
+  display:flex;align-items:center;gap:8px;margin-bottom:10px;
+}
+.stitle::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--b1),transparent)}
+
+/* ===== FORM ===== */
+.fg{margin-bottom:12px}
+.fl{
+  display:block;font-size:0.65rem;font-weight:700;
+  letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:5px;
+  font-family:'JetBrains Mono',monospace;
+}
+.fi,.fsel{
+  width:100%;padding:9px 13px;
+  border:1px solid var(--b1);border-radius:var(--r);
+  background:var(--s2);color:var(--ink);
+  font-family:'JetBrains Mono',monospace;font-size:0.85rem;
+  transition:var(--t);outline:none;appearance:none;-webkit-appearance:none;
+}
+.fi:focus,.fsel:focus{
+  border-color:rgba(139,92,246,0.5);background:var(--s3);
+  box-shadow:0 0 0 3px rgba(139,92,246,0.08),0 0 12px rgba(139,92,246,0.12);
+}
+.fsel{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237878A8' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;padding-right:30px;
+}
+.fsel option{background:#121224;color:#F0F0FF}
+
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+/* Input+unit combo */
+.iu{display:flex;gap:6px}
+.iu .fi{flex:1;min-width:0}
+.usel{
+  padding:8px 8px;border:1px solid rgba(139,92,246,0.25);
+  border-radius:var(--r);background:var(--s3);color:var(--g3);
+  font-family:'JetBrains Mono',monospace;font-size:0.68rem;font-weight:600;
+  cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;
+  transition:var(--t);min-width:60px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%238B5CF6' fill='none' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 6px center;padding-right:18px;
+}
+.usel:focus{border-color:rgba(139,92,246,0.5);box-shadow:0 0 8px rgba(139,92,246,0.15)}
+.usel option{background:#121224;color:#F0F0FF}
+
+/* Action button */
+.abtn{
+  width:100%;padding:11px;margin-top:4px;
+  background:linear-gradient(135deg,rgba(139,92,246,0.18),rgba(236,72,153,0.08));
+  color:var(--ink);border:1px solid rgba(139,92,246,0.35);
+  border-radius:var(--r);font-family:'Syne',sans-serif;
+  font-size:0.82rem;font-weight:700;cursor:pointer;transition:var(--t);
+}
+.abtn:hover{
+  background:linear-gradient(135deg,rgba(139,92,246,0.3),rgba(236,72,153,0.15));
+  border-color:rgba(139,92,246,0.6);
+  box-shadow:0 0 16px rgba(139,92,246,0.2),0 4px 12px rgba(0,0,0,0.3);
+  transform:translateY(-1px);
+}
+.abtn:active{transform:translateY(0)}
+
+/* ===== RESULT BOX ===== */
+.rbox{
+  background:var(--s2);border:1px solid var(--b1);
+  border-radius:var(--r);padding:12px 14px;
+  margin-top:12px;display:none;
+  animation:fadeUp 0.3s ease both;
+}
+.rbox.on{display:block;border-color:rgba(139,92,246,0.2);box-shadow:0 0 16px rgba(139,92,246,0.06)}
+.rrow{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:5px 0;border-bottom:1px solid var(--b1);
+}
+.rrow:last-child{border-bottom:none}
+.rlabel{font-size:0.7rem;color:var(--ink3);font-family:'Syne',sans-serif;font-weight:600}
+.rval{font-family:'JetBrains Mono',monospace;font-size:0.85rem;font-weight:600;color:var(--g3)}
+.rbadge{
+  display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;
+  font-size:0.66rem;font-weight:700;font-family:'Syne',sans-serif;letter-spacing:0.02em;
+}
+.bg-green{background:rgba(16,185,129,0.1);color:var(--gg);border:1px solid rgba(16,185,129,0.2)}
+.bg-yellow{background:rgba(245,158,11,0.1);color:var(--gy);border:1px solid rgba(245,158,11,0.2)}
+.bg-red{background:rgba(239,68,68,0.1);color:var(--gr);border:1px solid rgba(239,68,68,0.2)}
+.bg-cyan{background:rgba(6,182,212,0.1);color:var(--g5);border:1px solid rgba(6,182,212,0.2)}
+.bg-purple{background:rgba(139,92,246,0.1);color:var(--g2);border:1px solid rgba(139,92,246,0.2)}
+
+/* ===== CONVERTER ===== */
+.cat-pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.cpill{
+  padding:4px 11px;border:1px solid var(--b1);border-radius:100px;
+  background:var(--s2);font-size:0.66rem;font-weight:700;
+  font-family:'Syne',sans-serif;color:var(--ink3);cursor:pointer;transition:var(--t);
+}
+.cpill.active{
+  background:rgba(139,92,246,0.15);color:var(--g3);
+  border-color:rgba(139,92,246,0.4);box-shadow:0 0 8px rgba(139,92,246,0.15);
+}
+.swap-btn{
+  width:38px;height:38px;flex-shrink:0;
+  background:var(--s2);border:1px solid var(--b1);
+  border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:var(--t);color:var(--g3);
+}
+.swap-btn:hover{background:linear-gradient(135deg,var(--g1),var(--gp));color:#fff;border-color:transparent;transform:rotate(180deg);box-shadow:0 0 12px rgba(139,92,246,0.4)}
+
+/* ===== SHAPE GRID ===== */
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}
+.sbtn{
+  padding:9px 6px;border:1px solid var(--b1);border-radius:var(--r);
+  background:var(--s2);font-size:0.65rem;font-weight:700;
+  font-family:'Syne',sans-serif;color:var(--ink3);cursor:pointer;transition:var(--t);text-align:center;
+}
+.sbtn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5;display:block;margin:0 auto 4px}
+.sbtn:hover{border-color:rgba(139,92,246,0.3);color:var(--ink)}
+.sbtn.active{background:rgba(139,92,246,0.12);color:var(--g3);border-color:rgba(139,92,246,0.4);box-shadow:0 0 8px rgba(139,92,246,0.1)}
+
+/* ===== DEG TOGGLE ===== */
+.deg-tog{display:flex;align-items:center;gap:8px;font-size:0.65rem;font-family:'JetBrains Mono',monospace;color:var(--ink3);margin-bottom:10px}
+.tog-sw{position:relative;width:34px;height:18px}
+.tog-sw input{display:none}
+.tog-track{position:absolute;inset:0;background:var(--s3);border-radius:9px;cursor:pointer;transition:var(--t);border:1px solid var(--b1)}
+.tog-track::after{content:'';position:absolute;left:2px;top:2px;width:12px;height:12px;background:var(--ink3);border-radius:50%;transition:var(--t)}
+.tog-sw input:checked+.tog-track{background:rgba(139,92,246,0.2);border-color:rgba(139,92,246,0.4)}
+.tog-sw input:checked+.tog-track::after{transform:translateX(16px);background:var(--g2)}
+
+/* ===== HISTORY ===== */
+.hist-panel{max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:3px}
+.hist-panel::-webkit-scrollbar{width:2px}
+.hist-panel::-webkit-scrollbar-thumb{background:rgba(139,92,246,0.3);border-radius:2px}
+.hist-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:7px 11px;background:var(--s2);border-radius:8px;
+  cursor:pointer;transition:var(--t);border:1px solid transparent;
+  animation:fadeUp 0.2s ease both;
+}
+.hist-item:hover{background:var(--s3);border-color:rgba(139,92,246,0.2)}
+.hist-expr{font-family:'JetBrains Mono',monospace;font-size:0.66rem;color:var(--ink4)}
+.hist-res{font-family:'JetBrains Mono',monospace;font-size:0.8rem;font-weight:600;color:var(--g3)}
+.hist-empty{text-align:center;color:var(--ink4);font-size:0.7rem;padding:16px;font-family:'JetBrains Mono',monospace}
+
+/* ===== FORMULA MODE ===== */
+.fcat-pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
+.fcat{
+  padding:5px 12px;border:1px solid var(--b1);border-radius:100px;
+  background:var(--s2);font-size:0.66rem;font-weight:700;
+  font-family:'Syne',sans-serif;color:var(--ink3);cursor:pointer;transition:var(--t);
+}
+.fcat.active{background:rgba(6,182,212,0.1);color:var(--g5);border-color:rgba(6,182,212,0.35);box-shadow:0 0 8px rgba(6,182,212,0.1)}
+.fgrid{display:flex;flex-direction:column;gap:8px;max-height:460px;overflow-y:auto}
+.fgrid::-webkit-scrollbar{width:2px}
+.fgrid::-webkit-scrollbar-thumb{background:rgba(6,182,212,0.3);border-radius:2px}
+.fcard{
+  background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:12px 14px;
+  transition:var(--t);
+}
+.fcard:hover{border-color:rgba(139,92,246,0.25);box-shadow:0 0 10px rgba(139,92,246,0.06)}
+.fcard-title{
+  font-size:0.72rem;font-weight:800;color:var(--g3);
+  font-family:'Syne',sans-serif;margin-bottom:8px;
+  display:flex;align-items:center;gap:7px;
+}
+.fcard-title::before{content:'';width:3px;height:10px;background:linear-gradient(180deg,var(--g1),var(--gp));border-radius:2px;flex-shrink:0;box-shadow:0 0 6px rgba(139,92,246,0.5)}
+.fitem{display:flex;justify-content:space-between;align-items:baseline;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.fitem:last-child{border-bottom:none}
+.fname{font-size:0.68rem;color:var(--ink3);font-family:'Syne',sans-serif}
+.fexpr{font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:500;color:var(--g5);text-shadow:0 0 6px rgba(34,211,238,0.3);text-align:right}
+
+/* ===== GRAPH ===== */
+#graphCanvas{width:100%;height:160px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);display:block}
+
+/* ===== TOAST ===== */
+#toast{
+  position:fixed;bottom:20px;left:50%;
+  transform:translateX(-50%) translateY(70px);opacity:0;
+  background:linear-gradient(135deg,rgba(139,92,246,0.9),rgba(236,72,153,0.8));
+  color:#fff;padding:9px 18px;border-radius:100px;
+  font-size:0.75rem;font-family:'Syne',sans-serif;font-weight:700;
+  z-index:9998;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events:none;white-space:nowrap;
+  box-shadow:0 0 20px rgba(139,92,246,0.4);
+}
+#toast.on{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* ===== MOBILE NAV ===== */
+.mob-nav{
+  display:none;position:fixed;bottom:0;left:0;right:0;
+  background:rgba(12,12,26,0.95);backdrop-filter:blur(20px);
+  border-top:1px solid rgba(139,92,246,0.1);
+  padding:6px 8px 14px;z-index:100;
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+  gap:2px;
+}
+.mob-nav::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--g1),var(--gp),transparent);
+  opacity:0.5;
+}
+.mob-nav::-webkit-scrollbar{display:none}
+.mnb{
+  flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:5px 10px;border:none;background:transparent;border-radius:8px;
+  cursor:pointer;font-family:'Syne',sans-serif;font-size:0.56rem;font-weight:700;
+  color:var(--ink4);transition:var(--t);min-width:50px;
+}
+.mnb svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;margin-bottom:1px}
+.mnb.active{color:var(--g3)}
+.mnb.active svg{filter:drop-shadow(0 0 5px rgba(139,92,246,0.7))}
+
+/* ===== ANIMS ===== */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+.fu1{animation:fadeUp 0.4s 0.05s both}
+.fu2{animation:fadeUp 0.4s 0.10s both}
+.fu3{animation:fadeUp 0.4s 0.15s both}
+.fu4{animation:fadeUp 0.4s 0.20s both}
+.fu5{animation:fadeUp 0.4s 0.25s both}
+.fu6{animation:fadeUp 0.4s 0.30s both}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:820px){
+  .app{padding:14px 10px 74px;gap:12px}
+  .sidebar{display:none}
+  .mob-nav{display:flex}
+  .disp-val{font-size:1.9rem}
+}
+@media(max-width:480px){
+  .app{padding:10px 8px 74px}
+  .cb{height:46px;font-size:0.85rem}
+  .cb.sm{height:40px}
+  .fr2,.fr3{grid-template-columns:1fr}
+}
+
+/* ===== GRAPH FUNC AREA ===== */
+.graph-row{display:flex;gap:7px;margin-bottom:8px}
+.graph-row .fi{flex:1}
+.graph-row .abtn{width:auto;padding:9px 14px;margin-top:0;white-space:nowrap}
+
+/* ===== INFO CHIP ===== */
+.info-chip{
+  font-size:0.68rem;color:var(--ink4);font-family:'JetBrains Mono',monospace;
+  background:var(--s2);border:1px solid var(--b1);border-radius:6px;
+  padding:6px 10px;margin-bottom:12px;line-height:1.5;
+}
+
+/* ===== PROGRESS BAR (savings) ===== */
+.prog-wrap{background:var(--s3);border-radius:4px;height:6px;overflow:hidden;margin:8px 0}
+.prog-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--g1),var(--gp));transition:width 0.6s cubic-bezier(0.4,0,0.2,1);box-shadow:0 0 8px rgba(139,92,246,0.4)}
+
+/* ===== ZAKAT CATEGORY ===== */
+.zkat-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.zkat-btn{
+  padding:10px 8px;border:1px solid var(--b1);border-radius:var(--r);
+  background:var(--s2);font-size:0.7rem;font-weight:700;
+  font-family:'Syne',sans-serif;color:var(--ink3);cursor:pointer;transition:var(--t);text-align:center;
+}
+.zkat-btn.active{background:rgba(16,185,129,0.1);color:var(--gg);border-color:rgba(16,185,129,0.35)}
+
+/* ===== GPA TABLE ===== */
+.gpa-table{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:0.78rem}
+.gpa-table th{padding:6px 8px;text-align:left;color:var(--ink4);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;border-bottom:1px solid var(--b1)}
+.gpa-table td{padding:6px 8px;color:var(--ink2);border-bottom:1px solid rgba(255,255,255,0.03)}
+.gpa-table tr:last-child td{border-bottom:none}
+.gpa-table input{background:transparent;border:none;border-bottom:1px solid var(--b1);color:var(--ink);width:60px;padding:2px 4px;font-family:'JetBrains Mono',monospace;font-size:0.78rem;outline:none;text-align:center}
+.gpa-table input:focus{border-color:rgba(139,92,246,0.5)}
+.add-row-btn{
+  font-size:0.68rem;font-weight:700;color:var(--g3);
+  background:rgba(139,92,246,0.08);border:1px dashed rgba(139,92,246,0.3);
+  border-radius:var(--r);padding:7px;width:100%;
+  cursor:pointer;transition:var(--t);font-family:'Syne',sans-serif;margin-top:8px;
+}
+.add-row-btn:hover{background:rgba(139,92,246,0.15)}
+
+/* dark scrollbar global */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(139,92,246,0.2);border-radius:4px}
+</style>
+</head>
+<body>
+
+<!-- BG AMBIENCE -->
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-orb bg-orb-3"></div>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-logo">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="4" y="2" width="16" height="20" rx="2"/>
+      <line x1="8" y1="6" x2="16" y2="6"/>
+      <line x1="8" y1="10" x2="16" y2="10"/>
+      <line x1="8" y1="14" x2="12" y2="14"/>
+      <circle cx="16" cy="17" r="3"/>
+      <line x1="18.5" y1="19.5" x2="20" y2="21"/>
+    </svg>
+  </div>
+  <div class="splash-title">Raven</div>
+  <div class="splash-sub">Kalkulator v2.0</div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="2" width="16" height="20" rx="2"/>
+          <line x1="8" y1="7" x2="16" y2="7"/>
+          <line x1="8" y1="11" x2="16" y2="11"/>
+          <line x1="8" y1="15" x2="12" y2="15"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-text">Raven</div>
+        <span class="brand-ver">v2.0 · 2025</span>
+      </div>
+    </div>
+
+    <div class="nav-section-label">Kalkulator</div>
+    <button class="nav-item active" data-mode="standard" onclick="switchMode('standard')">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>Standar
+    </button>
+    <button class="nav-item" data-mode="scientific" onclick="switchMode('scientific')">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg></span>Ilmiah
+    </button>
+
+    <div class="nav-section-label">Keuangan</div>
+    <button class="nav-item" data-mode="finance" onclick="switchMode('finance')">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span>Keuangan
+    </button>
+    <button class="nav-item" data-mode="daily" onclick="switchMode('daily')">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>Sehari-hari
+    </button>
+    <button class="nav-item" data-mode="tax" onclick="switchMode('tax')">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>Pajak & Zakat
+    </button>
+
+    <div class="nav-section-label">Lainnya</div>
+    <button class="nav-item" data-mode="health" onclick="switchMode('health')">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></span>Kesehatan
+    </button>
+    <button class="nav-item" data-mode="datetime" onclick="switchMode('datetime')">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>Waktu & Tanggal
+    </button>
+    <button class="nav-item" data-mode="converter" onclick="switchMode('converter')">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M8 3L4 7l4 4"/><path d="M4 7h16"/><path d="M16 21l4-4-4-4"/><path d="M20 17H4"/></svg></span>Konversi
+    </button>
+    <button class="nav-item" data-mode="engineering" onclick="switchMode('engineering')">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M5.34 18.66l-1.41 1.41M20 12h-2M6 12H4m14.66 5.66l-1.41-1.41M6.75 6.75L5.34 5.34M12 20v-2m0-14V2"/></svg></span>Teknik
+    </button>
+    <button class="nav-item" data-mode="formulas" onclick="switchMode('formulas')">
+      <span class="nav-icon"><svg viewBox="0 0 24 24"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg></span>Rumus
+    </button>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- DISPLAY -->
+    <div class="display fu1">
+      <div class="disp-mode" id="modeTag">MODE STANDAR</div>
+      <div class="disp-hist" id="dHist"></div>
+      <div class="disp-expr" id="dExpr"></div>
+      <div class="disp-val" id="dVal">0</div>
+      <div class="disp-meta">
+        <span class="mem-badge" id="memBadge">MEM —</span>
+        <button class="exp-btn" onclick="exportResult()">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Ekspor
+        </button>
+      </div>
+    </div>
+
+    <!-- ======== STANDARD ======== -->
+    <div class="panel card active fu2" id="panel-standard">
+      <div class="stitle">Memori</div>
+      <div class="btn-grid g4" style="margin-bottom:10px">
+        <button class="cb sm" onclick="memOp('MC')">MC</button>
+        <button class="cb sm" onclick="memOp('MR')">MR</button>
+        <button class="cb sm" onclick="memOp('M+')">M+</button>
+        <button class="cb sm" onclick="memOp('M-')">M−</button>
+      </div>
+      <div class="stitle">Tombol</div>
+      <div class="btn-grid g4">
+        <button class="cb sm red" onclick="clearAll()">AC</button>
+        <button class="cb sm op" onclick="delChar()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 002-2V6a2 2 0 00-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>
+        </button>
+        <button class="cb sm op" onclick="inputOp('%')">%</button>
+        <button class="cb sm op" onclick="inputOp('÷')">÷</button>
+        <button class="cb" onclick="inputNum('7')">7</button>
+        <button class="cb" onclick="inputNum('8')">8</button>
+        <button class="cb" onclick="inputNum('9')">9</button>
+        <button class="cb op" onclick="inputOp('×')">×</button>
+        <button class="cb" onclick="inputNum('4')">4</button>
+        <button class="cb" onclick="inputNum('5')">5</button>
+        <button class="cb" onclick="inputNum('6')">6</button>
+        <button class="cb op" onclick="inputOp('−')">−</button>
+        <button class="cb" onclick="inputNum('1')">1</button>
+        <button class="cb" onclick="inputNum('2')">2</button>
+        <button class="cb" onclick="inputNum('3')">3</button>
+        <button class="cb op" onclick="inputOp('+')">+</button>
+        <button class="cb" onclick="toggleSign()">±</button>
+        <button class="cb" onclick="inputNum('0')">0</button>
+        <button class="cb" onclick="inputDot()">.</button>
+        <button class="cb eq" onclick="calculate()">=</button>
+      </div>
+      <div class="stitle" style="margin-top:14px">Riwayat</div>
+      <div class="hist-panel" id="histPanel"><div class="hist-empty">Belum ada riwayat</div></div>
+    </div>
+
+    <!-- ======== SCIENTIFIC ======== -->
+    <div class="panel card" id="panel-scientific">
+      <div class="deg-tog">
+        <span>DEG</span>
+        <label class="tog-sw"><input type="checkbox" id="radToggle" onchange="angleMode=this.checked?'rad':'deg'"><span class="tog-track"></span></label>
+        <span>RAD</span>
+      </div>
+      <div class="btn-grid g5" style="margin-bottom:7px">
+        <button class="cb xs" onclick="sciF('sin')">sin</button>
+        <button class="cb xs" onclick="sciF('cos')">cos</button>
+        <button class="cb xs" onclick="sciF('tan')">tan</button>
+        <button class="cb xs" onclick="sciF('asin')">sin⁻¹</button>
+        <button class="cb xs" onclick="sciF('acos')">cos⁻¹</button>
+        <button class="cb xs" onclick="sciF('atan')">tan⁻¹</button>
+        <button class="cb xs" onclick="sciF('log')">log</button>
+        <button class="cb xs" onclick="sciF('ln')">ln</button>
+        <button class="cb xs" onclick="sciF('log2')">log₂</button>
+        <button class="cb xs" onclick="sciF('sqrt')">√x</button>
+        <button class="cb xs" onclick="sciF('sq')">x²</button>
+        <button class="cb xs" onclick="sciF('cube')">x³</button>
+        <button class="cb xs" onclick="sciF('pow')">xⁿ</button>
+        <button class="cb xs" onclick="sciF('nrt')">ⁿ√x</button>
+        <button class="cb xs" onclick="sciF('fact')">n!</button>
+        <button class="cb xs cyan" onclick="inputConst('pi')">π</button>
+        <button class="cb xs cyan" onclick="inputConst('e')">e</button>
+        <button class="cb xs" onclick="sciF('inv')">1/x</button>
+        <button class="cb xs" onclick="sciF('abs')">|x|</button>
+        <button class="cb xs" onclick="sciF('exp')">eˣ</button>
+      </div>
+      <div class="btn-grid g4">
+        <button class="cb sm red" onclick="clearAll()">AC</button>
+        <button class="cb sm op" onclick="delChar()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 4H8l-7 8 7 8h13a2 2 0 002-2V6a2 2 0 00-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg></button>
+        <button class="cb sm op" onclick="inputOp('%')">%</button>
+        <button class="cb sm op" onclick="inputOp('÷')">÷</button>
+        <button class="cb" onclick="inputNum('7')">7</button><button class="cb" onclick="inputNum('8')">8</button><button class="cb" onclick="inputNum('9')">9</button><button class="cb op" onclick="inputOp('×')">×</button>
+        <button class="cb" onclick="inputNum('4')">4</button><button class="cb" onclick="inputNum('5')">5</button><button class="cb" onclick="inputNum('6')">6</button><button class="cb op" onclick="inputOp('−')">−</button>
+        <button class="cb" onclick="inputNum('1')">1</button><button class="cb" onclick="inputNum('2')">2</button><button class="cb" onclick="inputNum('3')">3</button><button class="cb op" onclick="inputOp('+')">+</button>
+        <button class="cb" onclick="toggleSign()">±</button><button class="cb" onclick="inputNum('0')">0</button><button class="cb" onclick="inputDot()">.</button><button class="cb eq" onclick="calculate()">=</button>
+      </div>
+      <div class="stitle" style="margin-top:14px">Grafik Fungsi</div>
+      <div class="graph-row"><input type="text" class="fi" id="graphFunc" placeholder="sin(x), x^2, ln(x)…"><button class="abtn" onclick="drawGraph()">Plot</button></div>
+      <canvas id="graphCanvas"></canvas>
+    </div>
+
+    <!-- ======== FINANCE ======== -->
+    <div class="panel card" id="panel-finance">
+      <div class="tab-bar">
+        <button class="tb active" onclick="tabSwitch(this,'fin','fc1')">Cicilan</button>
+        <button class="tb" onclick="tabSwitch(this,'fin','fc2')">Majemuk</button>
+        <button class="tb" onclick="tabSwitch(this,'fin','fc3')">Investasi</button>
+        <button class="tb" onclick="tabSwitch(this,'fin','fc4')">Nabung</button>
+        <button class="tb" onclick="tabSwitch(this,'fin','fc5')">Pinjaman</button>
+        <button class="tb" onclick="tabSwitch(this,'fin','fc6')">Margin</button>
+        <button class="tb" onclick="tabSwitch(this,'fin','fc7')">ROI</button>
+        <button class="tb" onclick="tabSwitch(this,'fin','fc8')">BBM</button>
+      </div>
+      <!-- Cicilan -->
+      <div class="fin" id="fc1">
+        <div class="fr2">
+          <div class="fg"><label class="fl">Pokok Pinjaman (Rp)</label><input type="number" class="fi" id="f_p" placeholder="500.000.000"></div>
+          <div class="fg"><label class="fl">Bunga / Tahun (%)</label><input type="number" class="fi" id="f_b" placeholder="9"></div>
+        </div>
+        <div class="fg"><label class="fl">Tenor (Bulan)</label><input type="number" class="fi" id="f_t" placeholder="120"></div>
+        <button class="abtn" onclick="calcCicilan()">Hitung Cicilan KPR</button>
+        <div class="rbox" id="r_cicil"></div>
+      </div>
+      <!-- Bunga Majemuk -->
+      <div class="fin" id="fc2" style="display:none">
+        <div class="fr2">
+          <div class="fg"><label class="fl">Modal Awal (Rp)</label><input type="number" class="fi" id="c_m" placeholder="10.000.000"></div>
+          <div class="fg"><label class="fl">Bunga / Tahun (%)</label><input type="number" class="fi" id="c_r" placeholder="8"></div>
+        </div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">Frekuensi/Tahun</label><select class="fsel" id="c_f"><option value="1">Tahunan</option><option value="2">Semester</option><option value="4">Triwulan</option><option value="12" selected>Bulanan</option><option value="365">Harian</option></select></div>
+          <div class="fg"><label class="fl">Durasi (Tahun)</label><input type="number" class="fi" id="c_t" placeholder="10"></div>
+        </div>
+        <button class="abtn" onclick="calcCompound()">Hitung</button>
+        <div class="rbox" id="r_comp"></div>
+      </div>
+      <!-- Investasi -->
+      <div class="fin" id="fc3" style="display:none">
+        <div class="fr2">
+          <div class="fg"><label class="fl">Setoran Bulanan (Rp)</label><input type="number" class="fi" id="i_s" placeholder="1.000.000"></div>
+          <div class="fg"><label class="fl">Return / Tahun (%)</label><input type="number" class="fi" id="i_r" placeholder="12"></div>
+        </div>
+        <div class="fg"><label class="fl">Durasi (Tahun)</label><input type="number" class="fi" id="i_t" placeholder="20"></div>
+        <button class="abtn" onclick="calcInvestasi()">Hitung Future Value</button>
+        <div class="rbox" id="r_inv"></div>
+      </div>
+      <!-- Nabung / Target -->
+      <div class="fin" id="fc4" style="display:none">
+        <div class="fr2">
+          <div class="fg"><label class="fl">Target Tabungan (Rp)</label><input type="number" class="fi" id="s_target" placeholder="100.000.000"></div>
+          <div class="fg"><label class="fl">Tabungan Saat Ini (Rp)</label><input type="number" class="fi" id="s_now" placeholder="0"></div>
+        </div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">Bunga / Tahun (%)</label><input type="number" class="fi" id="s_rate" placeholder="5"></div>
+          <div class="fg"><label class="fl">Target Waktu (Bulan)</label><input type="number" class="fi" id="s_month" placeholder="24"></div>
+        </div>
+        <button class="abtn" onclick="calcNabung()">Hitung Nabung</button>
+        <div class="rbox" id="r_nabung"></div>
+      </div>
+      <!-- Pinjaman Sederhana -->
+      <div class="fin" id="fc5" style="display:none">
+        <div class="fr2">
+          <div class="fg"><label class="fl">Jumlah Pinjaman (Rp)</label><input type="number" class="fi" id="pn_j" placeholder="50.000.000"></div>
+          <div class="fg"><label class="fl">Bunga / Tahun (%)</label><input type="number" class="fi" id="pn_b" placeholder="12"></div>
+        </div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">Tenor (Bulan)</label><input type="number" class="fi" id="pn_t" placeholder="36"></div>
+          <div class="fg"><label class="fl">Jenis Bunga</label><select class="fsel" id="pn_type"><option value="flat">Flat</option><option value="efektif">Efektif</option></select></div>
+        </div>
+        <button class="abtn" onclick="calcPinjaman()">Hitung Cicilan</button>
+        <div class="rbox" id="r_pinj"></div>
+      </div>
+      <!-- Margin -->
+      <div class="fin" id="fc6" style="display:none">
+        <div class="fr2">
+          <div class="fg"><label class="fl">Harga Modal (Rp)</label><input type="number" class="fi" id="mg_modal" placeholder="50.000"></div>
+          <div class="fg"><label class="fl">Harga Jual (Rp)</label><input type="number" class="fi" id="mg_jual" placeholder="75.000"></div>
+        </div>
+        <div class="fg"><label class="fl">Pajak / Biaya (%)</label><input type="number" class="fi" id="mg_tax" placeholder="0"></div>
+        <button class="abtn" onclick="calcMargin()">Hitung Margin</button>
+        <div class="rbox" id="r_margin"></div>
+      </div>
+      <!-- ROI -->
+      <div class="fin" id="fc7" style="display:none">
+        <div class="fr2">
+          <div class="fg"><label class="fl">Modal Awal (Rp)</label><input type="number" class="fi" id="r_modal" placeholder="5.000.000"></div>
+          <div class="fg"><label class="fl">Nilai Akhir (Rp)</label><input type="number" class="fi" id="r_akhir" placeholder="8.000.000"></div>
+        </div>
+        <div class="fg"><label class="fl">Durasi (Tahun, opsional)</label><input type="number" class="fi" id="r_tahun" placeholder="3"></div>
+        <button class="abtn" onclick="calcROI()">Hitung ROI</button>
+        <div class="rbox" id="r_roi"></div>
+      </div>
+      <!-- BBM -->
+      <div class="fin" id="fc8" style="display:none">
+        <div class="fr2">
+          <div class="fg"><label class="fl">Jarak Perjalanan (km)</label><input type="number" class="fi" id="bbm_jarak" placeholder="200"></div>
+          <div class="fg"><label class="fl">Konsumsi BBM (km/L)</label><input type="number" class="fi" id="bbm_kmpl" placeholder="15"></div>
+        </div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">Harga BBM (Rp/L)</label><input type="number" class="fi" id="bbm_harga" placeholder="10000"></div>
+          <div class="fg"><label class="fl">Jumlah Kendaraan</label><input type="number" class="fi" id="bbm_unit" placeholder="1" value="1"></div>
+        </div>
+        <button class="abtn" onclick="calcBBM()">Hitung Biaya BBM</button>
+        <div class="rbox" id="r_bbm"></div>
+      </div>
+    </div>
+
+    <!-- ======== DAILY ======== -->
+    <div class="panel card" id="panel-daily">
+      <div class="tab-bar">
+        <button class="tb active" onclick="tabSwitch(this,'dl','d1')">Diskon</button>
+        <button class="tb" onclick="tabSwitch(this,'dl','d2')">Tip</button>
+        <button class="tb" onclick="tabSwitch(this,'dl','d3')">KPK & FPB</button>
+        <button class="tb" onclick="tabSwitch(this,'dl','d4')">GPA/IPK</button>
+        <button class="tb" onclick="tabSwitch(this,'dl','d5')">Bagi Rata</button>
+      </div>
+      <!-- Diskon -->
+      <div class="dl" id="d1">
+        <div class="fr2">
+          <div class="fg"><label class="fl">Harga Asli (Rp)</label><input type="number" class="fi" id="dk_h" placeholder="500.000"></div>
+          <div class="fg"><label class="fl">Diskon (%)</label><input type="number" class="fi" id="dk_d" placeholder="30"></div>
+        </div>
+        <div class="fg"><label class="fl">Diskon Tambahan (%) — opsional</label><input type="number" class="fi" id="dk_d2" placeholder="0"></div>
+        <button class="abtn" onclick="calcDiskon()">Hitung Diskon</button>
+        <div class="rbox" id="r_dk"></div>
+      </div>
+      <!-- Tip -->
+      <div class="dl" id="d2" style="display:none">
+        <div class="fr2">
+          <div class="fg"><label class="fl">Total Tagihan (Rp)</label><input type="number" class="fi" id="tip_total" placeholder="350.000"></div>
+          <div class="fg"><label class="fl">Tip (%)</label><input type="number" class="fi" id="tip_pct" placeholder="10" value="10"></div>
+        </div>
+        <div class="fg"><label class="fl">Jumlah Orang</label><input type="number" class="fi" id="tip_orang" placeholder="4" value="1"></div>
+        <button class="abtn" onclick="calcTip()">Hitung Tip</button>
+        <div class="rbox" id="r_tip"></div>
+      </div>
+      <!-- KPK & FPB -->
+      <div class="dl" id="d3" style="display:none">
+        <div class="info-chip">Masukkan dua angka bulat positif</div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">Angka Pertama</label><input type="number" class="fi" id="kf_a" placeholder="12"></div>
+          <div class="fg"><label class="fl">Angka Kedua</label><input type="number" class="fi" id="kf_b" placeholder="18"></div>
+        </div>
+        <button class="abtn" onclick="calcKPKFPB()">Hitung KPK & FPB</button>
+        <div class="rbox" id="r_kf"></div>
+      </div>
+      <!-- GPA/IPK -->
+      <div class="dl" id="d4" style="display:none">
+        <div class="info-chip">Masukkan nilai & SKS tiap mata kuliah</div>
+        <table class="gpa-table" id="gpaTable">
+          <thead><tr><th>#</th><th>Mata Kuliah</th><th>Nilai (0-4)</th><th>SKS</th><th></th></tr></thead>
+          <tbody id="gpaBody"></tbody>
+        </table>
+        <button class="add-row-btn" onclick="addGPARow()">+ Tambah Mata Kuliah</button>
+        <button class="abtn" onclick="calcGPA()">Hitung IPK</button>
+        <div class="rbox" id="r_gpa"></div>
+      </div>
+      <!-- Bagi Rata -->
+      <div class="dl" id="d5" style="display:none">
+        <div class="fr2">
+          <div class="fg"><label class="fl">Total Tagihan (Rp)</label><input type="number" class="fi" id="split_total" placeholder="800.000"></div>
+          <div class="fg"><label class="fl">Jumlah Orang</label><input type="number" class="fi" id="split_n" placeholder="4"></div>
+        </div>
+        <div class="fg"><label class="fl">Diskon Voucher (Rp) — opsional</label><input type="number" class="fi" id="split_disc" placeholder="0"></div>
+        <button class="abtn" onclick="calcSplit()">Hitung Bagian</button>
+        <div class="rbox" id="r_split"></div>
+      </div>
+    </div>
+
+    <!-- ======== TAX ======== -->
+    <div class="panel card" id="panel-tax">
+      <div class="tab-bar">
+        <button class="tb active" onclick="tabSwitch(this,'tx','t1')">PPh 21</button>
+        <button class="tb" onclick="tabSwitch(this,'tx','t2')">PPN</button>
+        <button class="tb" onclick="tabSwitch(this,'tx','t3')">Zakat Maal</button>
+        <button class="tb" onclick="tabSwitch(this,'tx','t4')">Zakat Penghasilan</button>
+      </div>
+      <!-- PPh 21 -->
+      <div class="tx" id="t1">
+        <div class="fg"><label class="fl">Gaji Bruto / Bulan (Rp)</label><input type="number" class="fi" id="pph_g" placeholder="10.000.000"></div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">Status PTKP</label><select class="fsel" id="pph_s"><option value="54000000">TK/0 – 54 jt</option><option value="58500000">K/0 – 58,5 jt</option><option value="63000000">K/1 – 63 jt</option><option value="67500000">K/2 – 67,5 jt</option><option value="72000000">K/3 – 72 jt</option></select></div>
+          <div class="fg"><label class="fl">Tunjangan/Bulan (Rp)</label><input type="number" class="fi" id="pph_tun" placeholder="0"></div>
+        </div>
+        <button class="abtn" onclick="calcPPh()">Hitung PPh 21</button>
+        <div class="rbox" id="r_pph"></div>
+      </div>
+      <!-- PPN -->
+      <div class="tx" id="t2" style="display:none">
+        <div class="fr2">
+          <div class="fg"><label class="fl">Harga Dasar (Rp)</label><input type="number" class="fi" id="ppn_h" placeholder="1.000.000"></div>
+          <div class="fg"><label class="fl">Tarif PPN (%)</label><input type="number" class="fi" id="ppn_r" placeholder="11" value="11"></div>
+        </div>
+        <button class="abtn" onclick="calcPPN()">Hitung PPN</button>
+        <div class="rbox" id="r_ppn"></div>
+      </div>
+      <!-- Zakat Maal -->
+      <div class="tx" id="t3" style="display:none">
+        <div class="info-chip">Nisab zakat maal = 85g emas. Jika harta ≥ nisab & dimiliki 1 tahun, wajib zakat 2,5%.</div>
+        <div class="fg"><label class="fl">Total Harta (Rp)</label><input type="number" class="fi" id="zm_harta" placeholder="100.000.000"></div>
+        <div class="fg"><label class="fl">Utang Jatuh Tempo (Rp)</label><input type="number" class="fi" id="zm_utang" placeholder="0"></div>
+        <div class="fg"><label class="fl">Harga Emas / gram (Rp)</label><input type="number" class="fi" id="zm_emas" placeholder="1.100.000"></div>
+        <button class="abtn" onclick="calcZakatMaal()">Hitung Zakat Maal</button>
+        <div class="rbox" id="r_zm"></div>
+      </div>
+      <!-- Zakat Penghasilan -->
+      <div class="tx" id="t4" style="display:none">
+        <div class="info-chip">Nisab zakat penghasilan = 520kg beras. Tarif 2,5% dari penghasilan bersih.</div>
+        <div class="fg"><label class="fl">Gaji / Penghasilan Bersih / Bulan (Rp)</label><input type="number" class="fi" id="zp_gaji" placeholder="5.000.000"></div>
+        <div class="fg"><label class="fl">Harga Beras / kg (Rp)</label><input type="number" class="fi" id="zp_beras" placeholder="13000"></div>
+        <button class="abtn" onclick="calcZakatPenghasilan()">Hitung Zakat Penghasilan</button>
+        <div class="rbox" id="r_zp"></div>
+      </div>
+    </div>
+
+    <!-- ======== HEALTH ======== -->
+    <div class="panel card" id="panel-health">
+      <div class="tab-bar">
+        <button class="tb active" onclick="tabSwitch(this,'hl','h1')">BMI</button>
+        <button class="tb" onclick="tabSwitch(this,'hl','h2')">Kalori BMR</button>
+        <button class="tb" onclick="tabSwitch(this,'hl','h3')">Berat Ideal</button>
+        <button class="tb" onclick="tabSwitch(this,'hl','h4')">Kebutuhan Air</button>
+        <button class="tb" onclick="tabSwitch(this,'hl','h5')">Ibu Hamil</button>
+      </div>
+      <!-- BMI -->
+      <div class="hl" id="h1">
+        <div class="fr2">
+          <div class="fg"><label class="fl">Berat (kg)</label><input type="number" class="fi" id="bmi_b" placeholder="65"></div>
+          <div class="fg"><label class="fl">Tinggi (cm)</label><input type="number" class="fi" id="bmi_t" placeholder="170"></div>
+        </div>
+        <button class="abtn" onclick="calcBMI()">Hitung BMI</button>
+        <div class="rbox" id="r_bmi"></div>
+      </div>
+      <!-- BMR -->
+      <div class="hl" id="h2" style="display:none">
+        <div class="fr2">
+          <div class="fg"><label class="fl">Berat (kg)</label><input type="number" class="fi" id="bmr_b" placeholder="65"></div>
+          <div class="fg"><label class="fl">Tinggi (cm)</label><input type="number" class="fi" id="bmr_t" placeholder="170"></div>
+        </div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">Usia (tahun)</label><input type="number" class="fi" id="bmr_u" placeholder="25"></div>
+          <div class="fg"><label class="fl">Jenis Kelamin</label><select class="fsel" id="bmr_sex"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
+        </div>
+        <div class="fg"><label class="fl">Tingkat Aktivitas</label><select class="fsel" id="bmr_act"><option value="1.2">Sedentary (tidak aktif)</option><option value="1.375">Ringan (1-3x/minggu)</option><option value="1.55" selected>Moderat (3-5x/minggu)</option><option value="1.725">Aktif (6-7x/minggu)</option><option value="1.9">Sangat Aktif</option></select></div>
+        <button class="abtn" onclick="calcBMR()">Hitung Kebutuhan Kalori</button>
+        <div class="rbox" id="r_bmr"></div>
+      </div>
+      <!-- Berat Ideal -->
+      <div class="hl" id="h3" style="display:none">
+        <div class="fr2">
+          <div class="fg"><label class="fl">Tinggi (cm)</label><input type="number" class="fi" id="iw_t" placeholder="170"></div>
+          <div class="fg"><label class="fl">Jenis Kelamin</label><select class="fsel" id="iw_sex"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
+        </div>
+        <button class="abtn" onclick="calcIdealWeight()">Hitung</button>
+        <div class="rbox" id="r_iw"></div>
+      </div>
+      <!-- Air -->
+      <div class="hl" id="h4" style="display:none">
+        <div class="fr2">
+          <div class="fg"><label class="fl">Berat Badan (kg)</label><input type="number" class="fi" id="air_b" placeholder="65"></div>
+          <div class="fg"><label class="fl">Aktivitas</label><select class="fsel" id="air_act"><option value="1">Ringan</option><option value="1.2" selected>Sedang</option><option value="1.4">Berat</option></select></div>
+        </div>
+        <div class="fg"><label class="fl">Suhu Lingkungan</label><select class="fsel" id="air_suhu"><option value="1">Normal</option><option value="1.1">Panas / Lembab</option></select></div>
+        <button class="abtn" onclick="calcAir()">Hitung Kebutuhan Air</button>
+        <div class="rbox" id="r_air"></div>
+      </div>
+      <!-- Ibu Hamil -->
+      <div class="hl" id="h5" style="display:none">
+        <div class="fg"><label class="fl">Hari Pertama Haid Terakhir (HPHT)</label><input type="date" class="fi" id="hpht"></div>
+        <button class="abtn" onclick="calcHamil()">Hitung HPL & Trimester</button>
+        <div class="rbox" id="r_hamil"></div>
+      </div>
+    </div>
+
+    <!-- ======== DATETIME ======== -->
+    <div class="panel card" id="panel-datetime">
+      <div class="tab-bar">
+        <button class="tb active" onclick="tabSwitch(this,'dt','dt1')">Umur</button>
+        <button class="tb" onclick="tabSwitch(this,'dt','dt2')">Selisih Tanggal</button>
+        <button class="tb" onclick="tabSwitch(this,'dt','dt3')">Tambah/Kurang Hari</button>
+        <button class="tb" onclick="tabSwitch(this,'dt','dt4')">Konversi Waktu</button>
+        <button class="tb" onclick="tabSwitch(this,'dt','dt5')">Zona Waktu</button>
+      </div>
+      <!-- Umur -->
+      <div class="dt" id="dt1">
+        <div class="fg"><label class="fl">Tanggal Lahir</label><input type="date" class="fi" id="umur_tl"></div>
+        <div class="fg"><label class="fl">Hitung sampai tanggal (kosong = hari ini)</label><input type="date" class="fi" id="umur_to"></div>
+        <button class="abtn" onclick="calcUmur()">Hitung Umur</button>
+        <div class="rbox" id="r_umur"></div>
+      </div>
+      <!-- Selisih Tanggal -->
+      <div class="dt" id="dt2" style="display:none">
+        <div class="fr2">
+          <div class="fg"><label class="fl">Tanggal Mulai</label><input type="date" class="fi" id="sel_a"></div>
+          <div class="fg"><label class="fl">Tanggal Akhir</label><input type="date" class="fi" id="sel_b"></div>
+        </div>
+        <button class="abtn" onclick="calcSelisih()">Hitung Selisih</button>
+        <div class="rbox" id="r_sel"></div>
+      </div>
+      <!-- Tambah/Kurang Hari -->
+      <div class="dt" id="dt3" style="display:none">
+        <div class="fg"><label class="fl">Tanggal Awal</label><input type="date" class="fi" id="add_tgl"></div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">Jumlah</label><input type="number" class="fi" id="add_n" placeholder="30"></div>
+          <div class="fg"><label class="fl">Satuan</label><select class="fsel" id="add_unit"><option value="1">Hari</option><option value="7">Minggu</option><option value="30">Bulan (≈30hr)</option><option value="365">Tahun (≈365hr)</option></select></div>
+        </div>
+        <div class="fr2">
+          <button class="abtn" style="margin-right:6px" onclick="calcAddDate(1)">+ Tambah</button>
+          <button class="abtn" onclick="calcAddDate(-1)">− Kurangi</button>
+        </div>
+        <div class="rbox" id="r_add"></div>
+      </div>
+      <!-- Konversi Waktu -->
+      <div class="dt" id="dt4" style="display:none">
+        <div class="fr2">
+          <div class="fg"><label class="fl">Nilai</label><input type="number" class="fi" id="wkt_val" placeholder="3600"></div>
+          <div class="fg"><label class="fl">Dari Satuan</label><select class="fsel" id="wkt_from"><option value="1">Detik</option><option value="60">Menit</option><option value="3600">Jam</option><option value="86400">Hari</option><option value="604800">Minggu</option></select></div>
+        </div>
+        <button class="abtn" onclick="calcKonversiWaktu()">Konversi</button>
+        <div class="rbox" id="r_wkt"></div>
+      </div>
+      <!-- Zona Waktu -->
+      <div class="dt" id="dt5" style="display:none">
+        <div class="info-chip">Konversi waktu antar zona waktu Indonesia & dunia</div>
+        <div class="fg"><label class="fl">Waktu Input</label><input type="datetime-local" class="fi" id="tz_input"></div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">Zona Asal</label><select class="fsel" id="tz_from">
+            <option value="7">WIB (UTC+7)</option>
+            <option value="8">WITA (UTC+8)</option>
+            <option value="9">WIT (UTC+9)</option>
+            <option value="0">UTC/GMT</option>
+            <option value="-5">EST (UTC-5)</option>
+            <option value="-4">EDT (UTC-4)</option>
+            <option value="-8">PST (UTC-8)</option>
+            <option value="1">CET (UTC+1)</option>
+            <option value="8">SGT (UTC+8)</option>
+            <option value="9">JST/KST (UTC+9)</option>
+          </select></div>
+          <div class="fg"><label class="fl">Zona Tujuan</label><select class="fsel" id="tz_to">
+            <option value="7">WIB (UTC+7)</option>
+            <option value="8">WITA (UTC+8)</option>
+            <option value="9">WIT (UTC+9)</option>
+            <option value="0">UTC/GMT</option>
+            <option value="-5">EST (UTC-5)</option>
+            <option value="-4">EDT (UTC-4)</option>
+            <option value="-8">PST (UTC-8)</option>
+            <option value="1">CET (UTC+1)</option>
+            <option value="8">SGT (UTC+8)</option>
+            <option value="9">JST/KST (UTC+9)</option>
+          </select></div>
+        </div>
+        <button class="abtn" onclick="calcZonaWaktu()">Konversi Zona Waktu</button>
+        <div class="rbox" id="r_tz"></div>
+      </div>
+    </div>
+
+    <!-- ======== CONVERTER ======== -->
+    <div class="panel card" id="panel-converter">
+      <div class="cat-pills" id="catPills"></div>
+      <div style="display:flex;align-items:flex-end;gap:8px">
+        <div style="flex:1"><label class="fl">Dari</label><select class="fsel" style="width:100%" id="cvFrom" onchange="doConvert()"></select></div>
+        <button class="swap-btn" onclick="swapConv()" title="Tukar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3L4 7l4 4"/><path d="M4 7h16"/><path d="M16 21l4-4-4-4"/><path d="M20 17H4"/></svg>
+        </button>
+        <div style="flex:1"><label class="fl">Ke</label><select class="fsel" style="width:100%" id="cvTo" onchange="doConvert()"></select></div>
+      </div>
+      <div class="fr2" style="margin-top:10px">
+        <div class="fg"><label class="fl">Nilai</label><input type="number" class="fi" id="cvIn" placeholder="1" oninput="doConvert()"></div>
+        <div class="fg"><label class="fl">Hasil</label><input type="text" class="fi" id="cvOut" readonly style="color:var(--g3)"></div>
+      </div>
+    </div>
+
+    <!-- ======== ENGINEERING ======== -->
+    <div class="panel card" id="panel-engineering">
+      <div class="tab-bar">
+        <button class="tb active" onclick="tabSwitch(this,'eg','e1')">Ohm</button>
+        <button class="tb" onclick="tabSwitch(this,'eg','e2')">Bangun Datar</button>
+        <button class="tb" onclick="tabSwitch(this,'eg','e3')">Bangun Ruang</button>
+        <button class="tb" onclick="tabSwitch(this,'eg','e4')">Gerak</button>
+      </div>
+      <!-- Ohm -->
+      <div class="eg" id="e1">
+        <div class="info-chip">Isi 2 dari 3, kosongkan yang ingin dicari</div>
+        <div class="fr3">
+          <div class="fg">
+            <label class="fl">Tegangan V</label>
+            <div class="iu"><input type="number" class="fi" id="ohm_v" placeholder="?"><select class="usel" id="ohm_v_u"><option value="1">V</option><option value="0.001">mV</option><option value="1000">kV</option></select></div>
+          </div>
+          <div class="fg">
+            <label class="fl">Arus I</label>
+            <div class="iu"><input type="number" class="fi" id="ohm_i" placeholder="?"><select class="usel" id="ohm_i_u"><option value="1">A</option><option value="0.001">mA</option><option value="1000">kA</option></select></div>
+          </div>
+          <div class="fg">
+            <label class="fl">Hambatan R</label>
+            <div class="iu"><input type="number" class="fi" id="ohm_r" placeholder="?"><select class="usel" id="ohm_r_u"><option value="1">Ω</option><option value="1000">kΩ</option><option value="1000000">MΩ</option></select></div>
+          </div>
+        </div>
+        <button class="abtn" onclick="calcOhm()">Hitung Ohm's Law</button>
+        <div class="rbox" id="r_ohm"></div>
+        <div class="stitle" style="margin-top:14px">Daya Listrik</div>
+        <div class="fr2">
+          <div class="fg"><label class="fl">Tegangan (V)</label><input type="number" class="fi" id="pw_v" placeholder="220"></div>
+          <div class="fg"><label class="fl">Arus (A)</label><input type="number" class="fi" id="pw_i" placeholder="5"></div>
+        </div>
+        <div class="fg"><label class="fl">Waktu Pemakaian (jam/hari)</label><input type="number" class="fi" id="pw_h" placeholder="8"></div>
+        <button class="abtn" onclick="calcPower()">Hitung Daya & Tagihan</button>
+        <div class="rbox" id="r_pw"></div>
+      </div>
+      <!-- Bangun Datar -->
+      <div class="eg" id="e2" style="display:none">
+        <div class="sgrid" id="shapeDatarGrid">
+          <button class="sbtn active" onclick="selShape(this,'sd_lingkaran')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>Lingkaran</button>
+          <button class="sbtn" onclick="selShape(this,'sd_segitiga')"><svg viewBox="0 0 24 24"><polygon points="12 3 22 21 2 21"/></svg>Segitiga</button>
+          <button class="sbtn" onclick="selShape(this,'sd_persegi')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18"/></svg>Persegi</button>
+          <button class="sbtn" onclick="selShape(this,'sd_persegipanjang')"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12"/></svg>Panjang</button>
+          <button class="sbtn" onclick="selShape(this,'sd_trapesium')"><svg viewBox="0 0 24 24"><polygon points="6 20 18 20 22 8 2 8"/></svg>Trapesium</button>
+          <button class="sbtn" onclick="selShape(this,'sd_layang')"><svg viewBox="0 0 24 24"><polygon points="12 2 22 12 12 22 2 12"/></svg>Layang</button>
+        </div>
+        <div id="shapeDatarInputs"></div>
+        <button class="abtn" onclick="calcShapeDatar()">Hitung</button>
+        <div class="rbox" id="r_sd"></div>
+      </div>
+      <!-- Bangun Ruang -->
+      <div class="eg" id="e3" style="display:none">
+        <div class="sgrid" id="shapeRuangGrid">
+          <button class="sbtn active" onclick="selVolume(this,'sr_kubus')"><svg viewBox="0 0 24 24"><path d="M21 16V8l-9-4-9 4v8l9 4 9-4z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>Kubus</button>
+          <button class="sbtn" onclick="selVolume(this,'sr_balok')"><svg viewBox="0 0 24 24"><path d="M21 16V8l-9-4-9 4v8l9 4 9-4z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>Balok</button>
+          <button class="sbtn" onclick="selVolume(this,'sr_tabung')"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/></svg>Tabung</button>
+          <button class="sbtn" onclick="selVolume(this,'sr_bola')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>Bola</button>
+          <button class="sbtn" onclick="selVolume(this,'sr_kerucut')"><svg viewBox="0 0 24 24"><path d="M12 2L2 20h20L12 2z"/><ellipse cx="12" cy="20" rx="10" ry="3"/></svg>Kerucut</button>
+          <button class="sbtn" onclick="selVolume(this,'sr_limas')"><svg viewBox="0 0 24 24"><path d="M12 2L4 20h16L12 2z"/><line x1="4" y1="20" x2="20" y2="20"/></svg>Limas</button>
+        </div>
+        <div id="shapeRuangInputs"></div>
+        <button class="abtn" onclick="calcShapeRuang()">Hitung Volume & Luas Permukaan</button>
+        <div class="rbox" id="r_sr"></div>
+      </div>
+      <!-- Gerak -->
+      <div class="eg" id="e4" style="display:none">
+        <div class="info-chip">Isi 2 dari 3, kosongkan yang ingin dicari. v = s ÷ t</div>
+        <div class="fr3">
+          <div class="fg">
+            <label class="fl">Kecepatan v</label>
+            <div class="iu"><input type="number" class="fi" id="mo_v" placeholder="?"><select class="usel" id="mo_v_u"><option value="1">m/s</option><option value="0.2778">km/h</option><option value="0.4470">mph</option><option value="0.5144">knot</option></select></div>
+          </div>
+          <div class="fg">
+            <label class="fl">Jarak s</label>
+            <div class="iu"><input type="number" class="fi" id="mo_s" placeholder="?"><select class="usel" id="mo_s_u"><option value="1">m</option><option value="0.001">mm</option><option value="0.01">cm</option><option value="1000">km</option><option value="0.0254">inch</option><option value="0.3048">ft</option></select></div>
+          </div>
+          <div class="fg">
+            <label class="fl">Waktu t</label>
+            <div class="iu"><input type="number" class="fi" id="mo_t" placeholder="?"><select class="usel" id="mo_t_u"><option value="1">detik</option><option value="60">menit</option><option value="3600">jam</option></select></div>
+          </div>
+        </div>
+        <button class="abtn" onclick="calcMotion()">Hitung</button>
+        <div class="rbox" id="r_mo"></div>
+      </div>
+    </div>
+
+    <!-- ======== FORMULAS ======== -->
+    <div class="panel card" id="panel-formulas">
+      <div class="fcat-pills" id="fcatPills"></div>
+      <div class="fgrid" id="formulaGrid"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MOBILE NAV -->
+<nav class="mob-nav" id="mobNav">
+  <button class="mnb active" data-mode="standard" onclick="switchMode('standard')">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Standar
+  </button>
+  <button class="mnb" data-mode="scientific" onclick="switchMode('scientific')">
+    <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>Ilmiah
+  </button>
+  <button class="mnb" data-mode="finance" onclick="switchMode('finance')">
+    <svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Keuangan
+  </button>
+  <button class="mnb" data-mode="daily" onclick="switchMode('daily')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Harian
+  </button>
+  <button class="mnb" data-mode="tax" onclick="switchMode('tax')">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Pajak
+  </button>
+  <button class="mnb" data-mode="health" onclick="switchMode('health')">
+    <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>Sehat
+  </button>
+  <button class="mnb" data-mode="datetime" onclick="switchMode('datetime')">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Tanggal
+  </button>
+  <button class="mnb" data-mode="converter" onclick="switchMode('converter')">
+    <svg viewBox="0 0 24 24"><path d="M8 3L4 7l4 4"/><path d="M4 7h16"/><path d="M16 21l4-4-4-4"/><path d="M20 17H4"/></svg>Konversi
+  </button>
+  <button class="mnb" data-mode="engineering" onclick="switchMode('engineering')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M5.34 18.66l-1.41 1.41M20 12h-2M6 12H4m14.66 5.66l-1.41-1.41M6.75 6.75L5.34 5.34M12 20v-2m0-14V2"/></svg>Teknik
+  </button>
+  <button class="mnb" data-mode="formulas" onclick="switchMode('formulas')">
+    <svg viewBox="0 0 24 24"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>Rumus
+  </button>
+</nav>
+
+<div id="toast"></div>
+
+<script>
+/* =========================================
+   RAVEN KALKULATOR v2 — JAVASCRIPT
+   ========================================= */
+
+// ===== SPLASH =====
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('splash').classList.add('hide');
+    document.getElementById('app').classList.add('visible');
+    setTimeout(() => { document.getElementById('splash').style.display = 'none'; }, 700);
+  }, 2200);
+});
+
+// ===== UTILS =====
+const fmtN = n => {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  const abs = Math.abs(n);
+  if (abs >= 1e15 || (abs < 1e-6 && abs > 0)) return n.toExponential(4);
+  // Remove trailing zeros after decimal
+  let s = parseFloat(n.toPrecision(12)).toString();
+  return s;
+};
+
+const fmtRp = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+const fmtThousand = n => parseFloat(n).toLocaleString('id-ID', {maximumFractionDigits: 6});
+
+// Format display with dots (10000 → 10.000) but keep decimals with comma
+const fmtDisplay = s => {
+  if (!s || s === '0') return '0';
+  // Don't format if still typing (ends with dot or has incomplete decimal)
+  const parts = s.split('.');
+  const intPart = parts[0].replace('-','');
+  const sign = parts[0].startsWith('-') ? '-' : '';
+  const formatted = sign + parseInt(intPart).toLocaleString('id-ID');
+  return parts.length > 1 ? formatted + ',' + parts[1] : formatted;
+};
+
+const showToast = msg => {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('on'), 2200);
+};
+
+const showResult = (id, rows) => {
+  const el = document.getElementById(id);
+  el.classList.add('on');
+  el.innerHTML = rows.map(r => `<div class="rrow"><span class="rlabel">${r.l}</span><span class="rval">${r.v}</span></div>`).join('');
+};
+
+const showResultBadge = (id, rows) => {
+  const el = document.getElementById(id);
+  el.classList.add('on');
+  el.innerHTML = rows.map(r => r.badge
+    ? `<div class="rrow"><span class="rlabel">${r.l}</span><span class="rval"><span class="rbadge ${r.badge}">${r.v}</span></span></div>`
+    : `<div class="rrow"><span class="rlabel">${r.l}</span><span class="rval">${r.v}</span></div>`
+  ).join('');
+};
+
+const getVal = id => parseFloat(document.getElementById(id)?.value) || 0;
+const getStr = id => document.getElementById(id)?.value || '';
+const need = (...ids) => { for(const id of ids){ if(!getStr(id)){ showToast('Lengkapi semua field'); return false; } } return true; };
+
+// Ripple effect
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.cb');
+  if (!btn) return;
+  const r = document.createElement('span');
+  const rect = btn.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  r.className = 'ripple';
+  r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+  btn.appendChild(r);
+  setTimeout(() => r.remove(), 500);
+});
+
+// ===== MODE SWITCH =====
+const MODES = ['standard','scientific','finance','daily','tax','health','datetime','converter','engineering','formulas'];
+const MODE_TAGS = {
+  standard:'MODE STANDAR', scientific:'MODE ILMIAH', finance:'MODE KEUANGAN',
+  daily:'MODE SEHARI-HARI', tax:'MODE PAJAK & ZAKAT', health:'MODE KESEHATAN',
+  datetime:'MODE WAKTU & TANGGAL', converter:'MODE KONVERSI', engineering:'MODE TEKNIK',
+  formulas:'RUMUS MATEMATIKA'
+};
+
+function switchMode(mode) {
+  MODES.forEach(m => {
+    document.getElementById('panel-'+m).classList.toggle('active', m===mode);
+  });
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.mode===mode));
+  document.querySelectorAll('.mnb').forEach(b => b.classList.toggle('active', b.dataset.mode===mode));
+  document.getElementById('modeTag').textContent = MODE_TAGS[mode] || mode.toUpperCase();
+  if (mode === 'converter') initConverter();
+  if (mode === 'engineering') { initShapeDatar(); initShapeRuang(); }
+  if (mode === 'formulas') initFormulas();
+  if (mode === 'daily') initGPARows();
+}
+
+// ===== TAB SWITCH =====
+function tabSwitch(btn, cls, id) {
+  btn.closest('.card').querySelectorAll('.'+cls).forEach(p => p.style.display='none');
+  btn.closest('.card').querySelectorAll('.tb').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).style.display = 'block';
+  btn.classList.add('active');
+}
+
+// ===== CALCULATOR STATE =====
+let dVal = '0', expr = '', prevVal = null, op = null, waiting = false, mem = null;
+let angleMode = 'deg', history = [];
+let currentShapeDatar = 'sd_lingkaran', currentShapeRuang = 'sr_kubus';
+
+const D = id => document.getElementById(id);
+
+function updateDisp(val, ex='', hist='') {
+  const el = D('dVal');
+  el.style.animation='none'; el.offsetHeight;
+  el.style.animation='numIn 0.15s ease both';
+  el.textContent = fmtDisplay(String(val));
+  D('dExpr').textContent = ex;
+  D('dHist').textContent = hist;
+  const mb = D('memBadge');
+  if (mem !== null) { mb.textContent = 'MEM ' + fmtDisplay(String(mem)); mb.classList.add('on'); }
+  else { mb.textContent = 'MEM —'; mb.classList.remove('on'); }
+}
+
+function inputNum(n) {
+  if (waiting) { dVal=n; waiting=false; }
+  else { dVal = dVal==='0' ? n : dVal+n; }
+  if (dVal.replace('-','').replace('.','').length > 15) { dVal = dVal.slice(0,-1); return; }
+  updateDisp(dVal, expr);
+}
+function inputDot() {
+  if (waiting) { dVal='0.'; waiting=false; }
+  else if (!dVal.includes('.')) dVal+='.';
+  updateDisp(dVal, expr);
+}
+function inputOp(o) {
+  const v = parseFloat(dVal);
+  if (prevVal!==null && !waiting) {
+    const r = compute(prevVal, v, op);
+    dVal = fmtN(r); prevVal = r;
+  } else prevVal=v;
+  op=o; waiting=true;
+  expr = fmtDisplay(String(prevVal))+' '+o;
+  updateDisp(dVal, expr);
+}
+function compute(a,b,o) {
+  switch(o){
+    case '+': return a+b; case '−': return a-b;
+    case '×': return a*b; case '÷': return b===0?NaN:a/b;
+    case '%': return (a*b)/100;
+  }
+}
+function calculate() {
+  if (prevVal===null||op===null) { addHist(dVal+'=', dVal); return; }
+  const v=parseFloat(dVal), ex=expr+' '+fmtDisplay(dVal)+' =';
+  const r=compute(prevVal,v,op), rs=fmtN(r);
+  addHist(ex, rs);
+  dVal=rs; prevVal=null; op=null; waiting=false; expr='';
+  updateDisp(dVal,'',ex);
+}
+function clearAll() { dVal='0'; expr=''; prevVal=null; op=null; waiting=false; updateDisp('0'); }
+function delChar() {
+  if (waiting||dVal==='0') return;
+  dVal = dVal.length>1 ? dVal.slice(0,-1) : '0';
+  updateDisp(dVal, expr);
+}
+function toggleSign() { dVal=String(-parseFloat(dVal)||0); updateDisp(dVal,expr); }
+
+// Memory
+function memOp(o) {
+  const v=parseFloat(dVal);
+  switch(o){
+    case 'MC': mem=null; break;
+    case 'MR': if(mem!==null){dVal=fmtN(mem);waiting=false;} break;
+    case 'M+': mem=(mem||0)+v; break;
+    case 'M-': mem=(mem||0)-v; break;
+  }
+  updateDisp(dVal,expr);
+  showToast(o+' → '+(mem!==null?fmtDisplay(String(mem)):'—'));
+}
+
+// History
+function addHist(ex,res) {
+  history.unshift({ex,res});
+  if(history.length>50) history.pop();
+  renderHist();
+}
+function renderHist() {
+  const el=D('histPanel');
+  if(!history.length){el.innerHTML='<div class="hist-empty">Belum ada riwayat</div>';return;}
+  el.innerHTML=history.slice(0,20).map((h,i)=>`<div class="hist-item" onclick="useHist(${i})"><span class="hist-expr">${h.ex}</span><span class="hist-res">${h.res}</span></div>`).join('');
+}
+function useHist(i){ dVal=history[i].res; waiting=false; updateDisp(dVal); }
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  const mode = document.querySelector('.panel.active')?.id?.replace('panel-','');
+  if(!['standard','scientific'].includes(mode)) return;
+  if('0123456789'.includes(e.key)) inputNum(e.key);
+  else if(e.key==='.') inputDot();
+  else if(e.key==='+') inputOp('+');
+  else if(e.key==='-') inputOp('−');
+  else if(e.key==='*') inputOp('×');
+  else if(e.key==='/'){e.preventDefault();inputOp('÷');}
+  else if(e.key==='%') inputOp('%');
+  else if(e.key==='Enter'||e.key==='=') calculate();
+  else if(e.key==='Backspace') delChar();
+  else if(e.key==='Escape') clearAll();
+});
+
+// ===== SCIENTIFIC =====
+const toRad = v => angleMode==='deg' ? v*Math.PI/180 : v;
+const fromRad = v => angleMode==='deg' ? v*180/Math.PI : v;
+
+function sciF(fn) {
+  let v=parseFloat(dVal), r;
+  switch(fn){
+    case 'sin': r=Math.sin(toRad(v)); break;
+    case 'cos': r=Math.cos(toRad(v)); break;
+    case 'tan': r=Math.tan(toRad(v)); break;
+    case 'asin': r=fromRad(Math.asin(v)); break;
+    case 'acos': r=fromRad(Math.acos(v)); break;
+    case 'atan': r=fromRad(Math.atan(v)); break;
+    case 'log': r=Math.log10(v); break;
+    case 'ln': r=Math.log(v); break;
+    case 'log2': r=Math.log2(v); break;
+    case 'sqrt': r=Math.sqrt(v); break;
+    case 'sq': r=v*v; break;
+    case 'cube': r=v*v*v; break;
+    case 'pow': { const n=parseFloat(prompt('Pangkat (n):')||'2'); r=Math.pow(v,n); break; }
+    case 'nrt': { const n=parseFloat(prompt('Akar ke-n:')||'2'); r=Math.pow(v,1/n); break; }
+    case 'fact': { let x=1; for(let i=2;i<=Math.round(v);i++) x*=i; r=x; break; }
+    case 'inv': r=1/v; break;
+    case 'abs': r=Math.abs(v); break;
+    case 'exp': r=Math.exp(v); break;
+    default: r=v;
+  }
+  const ex=`${fn}(${fmtDisplay(String(v))})`;
+  addHist(ex+'=', fmtN(r));
+  dVal=fmtN(r); waiting=true;
+  updateDisp(dVal,'',ex+'=');
+}
+function inputConst(c) { dVal=fmtN(c==='pi'?Math.PI:Math.E); waiting=false; updateDisp(dVal,expr); }
+
+// Graph
+function drawGraph() {
+  const fnStr=D('graphFunc').value.trim(); if(!fnStr) return;
+  const canvas=D('graphCanvas');
+  canvas.width=canvas.offsetWidth; canvas.height=160;
+  const ctx=canvas.getContext('2d'), W=canvas.width, H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#121224'; ctx.fillRect(0,0,W,H);
+  const range=10;
+  const tX=x=>(x+range)/(2*range)*W;
+  const tY=y=>H/2-y/range*(H/2);
+  ctx.strokeStyle='#252540'; ctx.lineWidth=1;
+  for(let i=-range;i<=range;i++){
+    const x=tX(i); ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();
+    const y=tY(i); ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();
+  }
+  ctx.strokeStyle='#353558'; ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.stroke();
+  let fn;
+  try {
+    let s=fnStr.replace(/\^/g,'**').replace(/\bsin\b/g,'Math.sin').replace(/\bcos\b/g,'Math.cos').replace(/\btan\b/g,'Math.tan').replace(/\bsqrt\b/g,'Math.sqrt').replace(/\blog10\b/g,'Math.log10').replace(/\bln\b/g,'Math.log').replace(/\blog\b/g,'Math.log10').replace(/\babs\b/g,'Math.abs').replace(/\bpi\b/g,'Math.PI').replace(/\be\b/g,'Math.E');
+    fn=new Function('x','return '+s);
+  } catch(e){showToast('Fungsi tidak valid');return;}
+  ctx.strokeStyle='#8B5CF6'; ctx.lineWidth=2.5; ctx.shadowColor='rgba(139,92,246,0.5)'; ctx.shadowBlur=8;
+  ctx.beginPath(); let started=false;
+  for(let px=0;px<W;px++){
+    const x=(px/W)*2*range-range;
+    let y; try{y=fn(x);}catch(e){started=false;continue;}
+    if(!isFinite(y)||Math.abs(y)>range*3){started=false;continue;}
+    if(!started){ctx.moveTo(px,tY(y));started=true;}else ctx.lineTo(px,tY(y));
+  }
+  ctx.stroke(); ctx.shadowBlur=0;
+  showToast('Grafik diperbarui');
+}
+
+// ===== FINANCE =====
+function calcCicilan() {
+  if(!need('f_p','f_b','f_t')) return;
+  const P=getVal('f_p'), r=getVal('f_b')/100/12, n=getVal('f_t');
+  const ang=P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);
+  const total=ang*n, bunga=total-P;
+  showResult('r_cicil',[
+    {l:'Angsuran/Bulan',v:fmtRp(ang)},{l:'Total Bayar',v:fmtRp(total)},
+    {l:'Total Bunga',v:fmtRp(bunga)},{l:'Rasio Bunga',v:(bunga/P*100).toFixed(1)+'%'}
+  ]);
+}
+function calcCompound() {
+  if(!need('c_m','c_r','c_t')) return;
+  const P=getVal('c_m'), r=getVal('c_r')/100, n=getVal('c_f'), t=getVal('c_t');
+  const A=P*Math.pow(1+r/n,n*t);
+  showResult('r_comp',[
+    {l:'Modal Awal',v:fmtRp(P)},{l:'Nilai Akhir',v:fmtRp(A)},
+    {l:'Keuntungan',v:fmtRp(A-P)},{l:'Return Total',v:((A-P)/P*100).toFixed(2)+'%'}
+  ]);
+}
+function calcInvestasi() {
+  if(!need('i_s','i_r','i_t')) return;
+  const pmt=getVal('i_s'), r=getVal('i_r')/100/12, n=getVal('i_t')*12;
+  const fv=pmt*(Math.pow(1+r,n)-1)/r;
+  showResult('r_inv',[
+    {l:'Future Value',v:fmtRp(fv)},{l:'Total Setoran',v:fmtRp(pmt*n)},
+    {l:'Keuntungan Investasi',v:fmtRp(fv-pmt*n)},{l:'Pertumbuhan',v:((fv/(pmt*n)-1)*100).toFixed(1)+'%'}
+  ]);
+}
+function calcNabung() {
+  if(!need('s_target','s_month')) return;
+  const target=getVal('s_target'), now=getVal('s_now'), r=getVal('s_rate')/100/12, n=getVal('s_month');
+  const sisa=target-now*(r?Math.pow(1+r,n):1);
+  const bulanan=r ? sisa*r/(Math.pow(1+r,n)-1) : sisa/n;
+  const pct=Math.min((now/target)*100,100);
+  const el=D('r_nabung'); el.classList.add('on');
+  el.innerHTML=`<div class="rrow"><span class="rlabel">Target</span><span class="rval">${fmtRp(target)}</span></div>
+  <div class="rrow"><span class="rlabel">Sudah Tersimpan</span><span class="rval">${fmtRp(now)}</span></div>
+  <div class="prog-wrap"><div class="prog-fill" style="width:${pct.toFixed(1)}%"></div></div>
+  <div class="rrow"><span class="rlabel">Progress</span><span class="rval">${pct.toFixed(1)}%</span></div>
+  <div class="rrow"><span class="rlabel">Nabung/Bulan</span><span class="rval">${fmtRp(Math.max(bulanan,0))}</span></div>
+  <div class="rrow"><span class="rlabel">Sisa Bulan</span><span class="rval">${n} bulan</span></div>`;
+}
+function calcPinjaman() {
+  if(!need('pn_j','pn_b','pn_t')) return;
+  const P=getVal('pn_j'), rate=getVal('pn_b')/100, n=getVal('pn_t'), type=getStr('pn_type');
+  let rows;
+  if(type==='flat'){
+    const bunga=P*rate*n/12, total=P+bunga, ang=(P+bunga)/n;
+    rows=[{l:'Cicilan/Bulan',v:fmtRp(ang)},{l:'Total Bunga',v:fmtRp(bunga)},{l:'Total Bayar',v:fmtRp(total)},{l:'Metode',v:'Flat'}];
+  } else {
+    const r=rate/12, ang=P*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);
+    rows=[{l:'Cicilan/Bulan (Eff.)',v:fmtRp(ang)},{l:'Total Bayar',v:fmtRp(ang*n)},{l:'Total Bunga',v:fmtRp(ang*n-P)},{l:'Metode',v:'Efektif/Anuitas'}];
+  }
+  showResult('r_pinj', rows);
+}
+function calcMargin() {
+  if(!need('mg_modal','mg_jual')) return;
+  const modal=getVal('mg_modal'), jual=getVal('mg_jual'), tax=getVal('mg_tax');
+  const profit=jual-modal, biaya=jual*(tax/100), netProfit=profit-biaya;
+  const margin=(profit/jual)*100, markup=(profit/modal)*100;
+  showResult('r_margin',[
+    {l:'Harga Modal',v:fmtRp(modal)},{l:'Harga Jual',v:fmtRp(jual)},
+    {l:'Profit Kotor',v:fmtRp(profit)},{l:'Biaya/Pajak',v:fmtRp(biaya)},
+    {l:'Profit Bersih',v:fmtRp(netProfit)},{l:'Margin (%)',v:margin.toFixed(2)+'%'},
+    {l:'Markup (%)',v:markup.toFixed(2)+'%'}
+  ]);
+}
+function calcROI() {
+  if(!need('r_modal','r_akhir')) return;
+  const modal=getVal('r_modal'), akhir=getVal('r_akhir'), tahun=getVal('r_tahun');
+  const roi=(akhir-modal)/modal*100;
+  const rows=[{l:'ROI Total',v:roi.toFixed(2)+'%'},{l:'Keuntungan',v:fmtRp(akhir-modal)}];
+  if(tahun) rows.push({l:'CAGR/tahun',v:((Math.pow(akhir/modal,1/tahun)-1)*100).toFixed(2)+'%'});
+  showResult('r_roi', rows);
+}
+function calcBBM() {
+  if(!need('bbm_jarak','bbm_kmpl','bbm_harga')) return;
+  const jarak=getVal('bbm_jarak'), kmpl=getVal('bbm_kmpl'), harga=getVal('bbm_harga'), unit=getVal('bbm_unit')||1;
+  const liter=jarak/kmpl, biaya=liter*harga*unit;
+  showResult('r_bbm',[
+    {l:'Jarak',v:fmtThousand(jarak)+' km'},{l:'Konsumsi BBM',v:fmtThousand(liter.toFixed(2))+' L'},
+    {l:'Biaya BBM',v:fmtRp(biaya)},{l:'Per Kendaraan',v:fmtRp(biaya/unit)},
+    {l:'Biaya/km',v:fmtRp(biaya/jarak/unit)+'/km'}
+  ]);
+}
+
+// ===== DAILY =====
+function calcDiskon() {
+  if(!need('dk_h','dk_d')) return;
+  const h=getVal('dk_h'), d=getVal('dk_d'), d2=getVal('dk_d2');
+  const s1=h*(1-d/100), s2=d2?s1*(1-d2/100):s1;
+  const rows=[{l:'Harga Asli',v:fmtRp(h)},{l:'Diskon '+d+'%',v:'− '+fmtRp(h*d/100)},{l:'Setelah Diskon 1',v:fmtRp(s1)}];
+  if(d2) rows.push({l:'Diskon Tambahan '+d2+'%',v:'− '+fmtRp(s1*d2/100)},{l:'Harga Final',v:fmtRp(s2)},{l:'Total Hemat',v:fmtRp(h-s2)});
+  showResult('r_dk', rows);
+}
+function calcTip() {
+  if(!need('tip_total')) return;
+  const total=getVal('tip_total'), pct=getVal('tip_pct')||10, n=getVal('tip_orang')||1;
+  const tip=total*pct/100, grand=total+tip;
+  showResult('r_tip',[
+    {l:'Tagihan',v:fmtRp(total)},{l:'Tip '+pct+'%',v:fmtRp(tip)},
+    {l:'Total',v:fmtRp(grand)},{l:'Per Orang ('+n+')',v:fmtRp(grand/n)}
+  ]);
+}
+function gcd(a,b){while(b){let t=b;b=a%b;a=t;}return a;}
+function calcKPKFPB() {
+  if(!need('kf_a','kf_b')) return;
+  const a=Math.round(getVal('kf_a')), b=Math.round(getVal('kf_b'));
+  if(a<=0||b<=0){showToast('Masukkan angka positif');return;}
+  const fpb=gcd(a,b), kpk=a*b/fpb;
+  showResult('r_kf',[
+    {l:'Angka',v:a+' & '+b},{l:'FPB (GCD)',v:fpb.toLocaleString('id-ID')},{l:'KPK (LCM)',v:kpk.toLocaleString('id-ID')}
+  ]);
+}
+
+// GPA
+let gpaRows=[];
+function initGPARows() {
+  if(gpaRows.length===0){addGPARow();addGPARow();addGPARow();}
+}
+function addGPARow() {
+  const i=gpaRows.length;
+  gpaRows.push({mk:'MK '+(i+1),nilai:'',sks:''});
+  renderGPATable();
+}
+function renderGPATable() {
+  const tbody=D('gpaBody');
+  tbody.innerHTML=gpaRows.map((r,i)=>`<tr>
+    <td style="color:var(--ink4)">${i+1}</td>
+    <td><input value="${r.mk}" oninput="gpaRows[${i}].mk=this.value" style="width:90px;font-family:'Syne',sans-serif;font-size:0.75rem;text-align:left"></td>
+    <td><input type="number" value="${r.nilai}" placeholder="3.5" min="0" max="4" step="0.01" oninput="gpaRows[${i}].nilai=this.value"></td>
+    <td><input type="number" value="${r.sks}" placeholder="3" min="1" max="6" oninput="gpaRows[${i}].sks=this.value"></td>
+    <td><button onclick="removeGPARow(${i})" style="background:none;border:none;color:var(--gr);cursor:pointer;font-size:0.8rem">✕</button></td>
+  </tr>`).join('');
+}
+function removeGPARow(i){ gpaRows.splice(i,1); if(!gpaRows.length) addGPARow(); else renderGPATable(); }
+function calcGPA() {
+  let totalMutu=0, totalSKS=0;
+  for(const r of gpaRows){
+    const n=parseFloat(r.nilai), s=parseFloat(r.sks);
+    if(isNaN(n)||isNaN(s)||n<0||n>4||s<1) continue;
+    totalMutu+=n*s; totalSKS+=s;
+  }
+  if(!totalSKS){showToast('Isi minimal 1 mata kuliah dengan benar');return;}
+  const ipk=totalMutu/totalSKS;
+  let predikat,cls;
+  if(ipk>=3.5){predikat='Cumlaude';cls='bg-purple';}
+  else if(ipk>=3.0){predikat='Sangat Memuaskan';cls='bg-cyan';}
+  else if(ipk>=2.5){predikat='Memuaskan';cls='bg-green';}
+  else if(ipk>=2.0){predikat='Cukup';cls='bg-yellow';}
+  else{predikat='Perlu Perbaikan';cls='bg-red';}
+  showResultBadge('r_gpa',[
+    {l:'Total SKS',v:totalSKS},{l:'Total Mutu',v:fmtN(totalMutu)},
+    {l:'IPK/GPA',v:ipk.toFixed(2)},{l:'Predikat',v:predikat,badge:cls}
+  ]);
+}
+function calcSplit() {
+  if(!need('split_total','split_n')) return;
+  const total=getVal('split_total'), n=getVal('split_n'), disc=getVal('split_disc');
+  const net=total-disc, per=net/n;
+  showResult('r_split',[
+    {l:'Total Tagihan',v:fmtRp(total)},{l:'Diskon Voucher',v:'− '+fmtRp(disc)},
+    {l:'Neto',v:fmtRp(net)},{l:'Per Orang ('+n+')',v:fmtRp(per)}
+  ]);
+}
+
+// ===== TAX =====
+function calcPPh() {
+  if(!need('pph_g')) return;
+  const gaji=getVal('pph_g'), tun=getVal('pph_tun'), ptkp=getVal('pph_s');
+  const bruto=(gaji+tun)*12, bj=Math.min(bruto*0.05,6000000), neto=bruto-bj, pkp=Math.max(neto-ptkp,0);
+  let pajak=0;
+  if(pkp<=60e6) pajak=pkp*0.05;
+  else if(pkp<=250e6) pajak=60e6*0.05+(pkp-60e6)*0.15;
+  else if(pkp<=500e6) pajak=60e6*0.05+190e6*0.15+(pkp-250e6)*0.25;
+  else if(pkp<=5e9) pajak=60e6*0.05+190e6*0.15+250e6*0.25+(pkp-500e6)*0.30;
+  else pajak=60e6*0.05+190e6*0.15+250e6*0.25+4500e6*0.30+(pkp-5e9)*0.35;
+  showResult('r_pph',[
+    {l:'Penghasilan Bruto/Tahun',v:fmtRp(bruto)},{l:'Biaya Jabatan',v:fmtRp(bj)},
+    {l:'PTKP',v:fmtRp(ptkp)},{l:'PKP',v:fmtRp(pkp)},
+    {l:'PPh 21/Tahun',v:fmtRp(pajak)},{l:'PPh 21/Bulan',v:fmtRp(pajak/12)},
+    {l:'Gaji Neto/Bulan',v:fmtRp(gaji-pajak/12)}
+  ]);
+}
+function calcPPN() {
+  if(!need('ppn_h')) return;
+  const h=getVal('ppn_h'), r=getVal('ppn_r')||11, ppn=h*r/100;
+  showResult('r_ppn',[{l:'Harga Dasar',v:fmtRp(h)},{l:'PPN '+r+'%',v:fmtRp(ppn)},{l:'Harga+PPN',v:fmtRp(h+ppn)}]);
+}
+function calcZakatMaal() {
+  if(!need('zm_harta','zm_emas')) return;
+  const harta=getVal('zm_harta'), utang=getVal('zm_utang'), emas=getVal('zm_emas');
+  const bersih=harta-utang, nisab=85*emas, wajib=bersih>=nisab, zakat=wajib?bersih*0.025:0;
+  showResultBadge('r_zm',[
+    {l:'Harta Bersih',v:fmtRp(bersih)},{l:'Nisab (85g emas)',v:fmtRp(nisab)},
+    {l:'Status',v:wajib?'Wajib Zakat':'Belum Wajib',badge:wajib?'bg-green':'bg-yellow'},
+    {l:'Zakat Maal (2.5%)',v:fmtRp(zakat)}
+  ]);
+}
+function calcZakatPenghasilan() {
+  if(!need('zp_gaji','zp_beras')) return;
+  const gaji=getVal('zp_gaji'), beras=getVal('zp_beras');
+  const nisab=520*beras, wajib=gaji>=nisab, zakat=wajib?gaji*0.025:0;
+  showResultBadge('r_zp',[
+    {l:'Gaji/Bulan',v:fmtRp(gaji)},{l:'Nisab (520kg beras)',v:fmtRp(nisab)},
+    {l:'Status',v:wajib?'Wajib Zakat':'Belum Wajib',badge:wajib?'bg-green':'bg-yellow'},
+    {l:'Zakat/Bulan (2.5%)',v:fmtRp(zakat)},{l:'Zakat/Tahun',v:fmtRp(zakat*12)}
+  ]);
+}
+
+// ===== HEALTH =====
+function calcBMI() {
+  if(!need('bmi_b','bmi_t')) return;
+  const w=getVal('bmi_b'), h=getVal('bmi_t')/100, bmi=w/(h*h);
+  let cat,cls;
+  if(bmi<17){cat='Sangat Kurus';cls='bg-red';}
+  else if(bmi<18.5){cat='Kurus';cls='bg-yellow';}
+  else if(bmi<25){cat='Normal';cls='bg-green';}
+  else if(bmi<30){cat='Overweight';cls='bg-yellow';}
+  else{cat='Obesitas';cls='bg-red';}
+  showResultBadge('r_bmi',[
+    {l:'Nilai BMI',v:bmi.toFixed(2)},{l:'Kategori',v:cat,badge:cls},{l:'Rentang Normal',v:'18.5 – 24.9'}
+  ]);
+}
+function calcBMR() {
+  if(!need('bmr_b','bmr_t','bmr_u')) return;
+  const w=getVal('bmr_b'), h=getVal('bmr_t'), a=getVal('bmr_u'), sex=getStr('bmr_sex'), act=getVal('bmr_act');
+  const bmr=sex==='L'?(10*w+6.25*h-5*a+5):(10*w+6.25*h-5*a-161);
+  const tdee=bmr*act;
+  showResult('r_bmr',[
+    {l:'BMR (istirahat total)',v:Math.round(bmr)+' kkal'},
+    {l:'TDEE (total harian)',v:Math.round(tdee)+' kkal'},
+    {l:'Diet (defisit -500)',v:Math.round(tdee-500)+' kkal'},
+    {l:'Bulking (+500)',v:Math.round(tdee+500)+' kkal'}
+  ]);
+}
+function calcIdealWeight() {
+  if(!need('iw_t')) return;
+  const h=getVal('iw_t'), sex=getStr('iw_sex');
+  const broca=sex==='L'?(h-100)*0.9:(h-100)*0.85;
+  const devine=sex==='L'?50+2.3*((h/2.54)-60):45.5+2.3*((h/2.54)-60);
+  const low=18.5*(h/100)**2, high=24.9*(h/100)**2;
+  showResult('r_iw',[
+    {l:'Metode Broca',v:broca.toFixed(1)+' kg'},
+    {l:'Metode Devine',v:devine.toFixed(1)+' kg'},
+    {l:'Rentang BMI Normal',v:low.toFixed(1)+'–'+high.toFixed(1)+' kg'}
+  ]);
+}
+function calcAir() {
+  if(!need('air_b')) return;
+  const b=getVal('air_b'), act=getVal('air_act'), suhu=getVal('air_suhu');
+  const base=b*35, kebutuhan=base*act*suhu;
+  showResult('r_air',[
+    {l:'Kebutuhan Air',v:(kebutuhan/1000).toFixed(2)+' liter/hari'},
+    {l:'Dalam mL',v:Math.round(kebutuhan)+' mL'},
+    {l:'Setara gelas (250mL)',v:Math.ceil(kebutuhan/250)+' gelas'}
+  ]);
+}
+function calcHamil() {
+  if(!need('hpht')) return;
+  const hpht=new Date(getStr('hpht'));
+  const hpl=new Date(hpht.getTime()+280*86400000);
+  const today=new Date();
+  const minggu=Math.floor((today-hpht)/(7*86400000));
+  const hari=Math.floor((today-hpht)/86400000);
+  let trimester,info;
+  if(minggu<14){trimester='Trimester 1';info='Organogenesis, hindari radiasi & obat sembarangan';}
+  else if(minggu<28){trimester='Trimester 2';info='Janin aktif bergerak, periksa rutin USG';}
+  else{trimester='Trimester 3';info='Persiapan persalinan, pantau gerakan janin';}
+  showResultBadge('r_hamil',[
+    {l:'HPHT',v:hpht.toLocaleDateString('id-ID')},
+    {l:'HPL (Perkiraan Lahir)',v:hpl.toLocaleDateString('id-ID')},
+    {l:'Usia Kehamilan',v:minggu+' minggu '+hari%7+' hari'},
+    {l:'Trimester',v:trimester,badge:'bg-purple'},
+    {l:'Info',v:info}
+  ]);
+}
+
+// ===== DATETIME =====
+function calcUmur() {
+  if(!need('umur_tl')) return;
+  const tl=new Date(getStr('umur_tl'));
+  const to=getStr('umur_to')?new Date(getStr('umur_to')):new Date();
+  let y=to.getFullYear()-tl.getFullYear(), m=to.getMonth()-tl.getMonth(), d=to.getDate()-tl.getDate();
+  if(d<0){m--;d+=new Date(to.getFullYear(),to.getMonth(),0).getDate();}
+  if(m<0){y--;m+=12;}
+  const totalHari=Math.floor((to-tl)/86400000);
+  showResult('r_umur',[
+    {l:'Umur',v:y+' tahun '+m+' bulan '+d+' hari'},
+    {l:'Dalam Bulan',v:(y*12+m).toLocaleString('id-ID')+' bulan'},
+    {l:'Dalam Hari',v:totalHari.toLocaleString('id-ID')+' hari'},
+    {l:'Dalam Jam',v:(totalHari*24).toLocaleString('id-ID')+' jam'},
+    {l:'Lahir',v:tl.toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}
+  ]);
+}
+function calcSelisih() {
+  if(!need('sel_a','sel_b')) return;
+  const a=new Date(getStr('sel_a')), b=new Date(getStr('sel_b'));
+  const diff=Math.abs(b-a), hari=Math.floor(diff/86400000);
+  const minggu=Math.floor(hari/7), bulan=Math.floor(hari/30.44), tahun=Math.floor(hari/365.25);
+  showResult('r_sel',[
+    {l:'Selisih Hari',v:hari.toLocaleString('id-ID')+' hari'},
+    {l:'Selisih Minggu',v:minggu.toLocaleString('id-ID')+' minggu'},
+    {l:'Selisih Bulan',v:'≈'+bulan+' bulan'},
+    {l:'Selisih Tahun',v:'≈'+tahun+' tahun'}
+  ]);
+}
+function calcAddDate(dir) {
+  if(!need('add_tgl','add_n')) return;
+  const tgl=new Date(getStr('add_tgl')), n=getVal('add_n'), unit=getVal('add_unit');
+  const ms=n*unit*86400000*dir;
+  const result=new Date(tgl.getTime()+ms);
+  showResult('r_add',[
+    {l:'Tanggal Awal',v:tgl.toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'})},
+    {l:(dir>0?'+ ':'− ')+n+(unit==1?' hari':unit==7?' minggu':unit==30?' bulan':' tahun'),v:''},
+    {l:'Tanggal Hasil',v:result.toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}
+  ]);
+}
+function calcKonversiWaktu() {
+  if(!need('wkt_val')) return;
+  const val=getVal('wkt_val'), from=getVal('wkt_from');
+  const detik=val*from;
+  showResult('r_wkt',[
+    {l:'Detik',v:detik.toLocaleString('id-ID')+' detik'},
+    {l:'Menit',v:fmtN(detik/60)+' menit'},
+    {l:'Jam',v:fmtN(detik/3600)+' jam'},
+    {l:'Hari',v:fmtN(detik/86400)+' hari'},
+    {l:'Minggu',v:fmtN(detik/604800)+' minggu'}
+  ]);
+}
+function calcZonaWaktu() {
+  if(!need('tz_input')) return;
+  const inp=new Date(getStr('tz_input'));
+  const fromOff=getVal('tz_from'), toOff=getVal('tz_to');
+  const diff=(toOff-fromOff)*3600000;
+  const result=new Date(inp.getTime()+diff);
+  const fmt={year:'numeric',month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'};
+  showResult('r_tz',[
+    {l:'Waktu Asal',v:inp.toLocaleString('id-ID',fmt)},
+    {l:'Selisih',v:(toOff-fromOff>=0?'+':'')+( toOff-fromOff)+' jam'},
+    {l:'Waktu Tujuan',v:result.toLocaleString('id-ID',fmt)}
+  ]);
+}
+
+// ===== CONVERTER =====
+const CONV_DATA = {
+  panjang:{label:'Panjang',units:{mm:0.001,cm:0.01,m:1,km:1000,inch:0.0254,feet:0.3048,yard:0.9144,mile:1609.34}},
+  berat:{label:'Berat',units:{mg:0.000001,g:0.001,kg:1,ton:1000,ounce:0.0283495,pound:0.453592}},
+  suhu:{label:'Suhu',special:true,units:{Celsius:0,Fahrenheit:0,Kelvin:0}},
+  luas:{label:'Luas',units:{'mm²':0.000001,'cm²':0.0001,'m²':1,'km²':1e6,hectare:10000,acre:4046.86}},
+  kecepatan:{label:'Kecepatan',units:{'m/s':1,'km/h':0.277778,mph:0.44704,knot:0.514444}},
+  volume:{label:'Volume',units:{mL:0.001,liter:1,'m³':1000,galon:3.78541,pint:0.473176,fl_oz:0.0295735}},
+  energi:{label:'Energi',units:{Joule:1,kJoule:1000,kalori:4.184,kkalori:4184,kWh:3600000,BTU:1055.06,'eV':1.60218e-19}},
+  tekanan:{label:'Tekanan',units:{Pascal:1,kPa:1000,Bar:100000,atm:101325,psi:6894.76,mmHg:133.322}},
+  data:{label:'Data',units:{bit:1,Byte:8,KB:8192,MB:8388608,GB:8589934592,TB:8796093022208}},
+};
+let currentCat='panjang';
+function initConverter() {
+  const pills=D('catPills');
+  pills.innerHTML=Object.entries(CONV_DATA).map(([k,v])=>`<button class="cpill${k===currentCat?' active':''}" onclick="selCat('${k}',this)">${v.label}</button>`).join('');
+  loadCatUnits();
+}
+function selCat(cat,btn) {
+  currentCat=cat;
+  document.querySelectorAll('.cpill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  loadCatUnits();
+}
+function loadCatUnits() {
+  const units=Object.keys(CONV_DATA[currentCat].units);
+  const opts=units.map(u=>`<option value="${u}">${u}</option>`).join('');
+  D('cvFrom').innerHTML=opts; D('cvTo').innerHTML=opts;
+  if(units.length>1) D('cvTo').selectedIndex=1;
+  doConvert();
+}
+function doConvert() {
+  const cat=CONV_DATA[currentCat], from=D('cvFrom').value, to=D('cvTo').value;
+  const val=parseFloat(D('cvIn').value)||0;
+  let result;
+  if(cat.special){
+    let c;
+    if(from==='Celsius') c=val;
+    else if(from==='Fahrenheit') c=(val-32)*5/9;
+    else c=val-273.15;
+    if(to==='Celsius') result=c;
+    else if(to==='Fahrenheit') result=c*9/5+32;
+    else result=c+273.15;
+  } else {
+    result=val*cat.units[from]/cat.units[to];
+  }
+  D('cvOut').value=parseFloat(result.toPrecision(10)).toString();
+}
+function swapConv() {
+  const a=D('cvFrom').value, b=D('cvTo').value;
+  D('cvFrom').value=b; D('cvTo').value=a; doConvert();
+}
+
+// ===== ENGINEERING =====
+const SHAPE_DATAR = {
+  sd_lingkaran:{label:'Lingkaran',fields:[{id:'r',label:'Jari-jari',units:['mm','cm','m','km','inch','ft']}]},
+  sd_segitiga:{label:'Segitiga',fields:[{id:'a',label:'Alas',units:['mm','cm','m']},{id:'t',label:'Tinggi',units:['mm','cm','m']},{id:'s1',label:'Sisi Miring',units:['mm','cm','m']}]},
+  sd_persegi:{label:'Persegi',fields:[{id:'s',label:'Sisi',units:['mm','cm','m','km']}]},
+  sd_persegipanjang:{label:'Persegi Panjang',fields:[{id:'p',label:'Panjang',units:['mm','cm','m']},{id:'l',label:'Lebar',units:['mm','cm','m']}]},
+  sd_trapesium:{label:'Trapesium',fields:[{id:'a',label:'Sisi Sejajar a',units:['mm','cm','m']},{id:'b',label:'Sisi Sejajar b',units:['mm','cm','m']},{id:'t',label:'Tinggi',units:['mm','cm','m']}]},
+  sd_layang:{label:'Layang-layang',fields:[{id:'d1',label:'Diagonal 1',units:['mm','cm','m']},{id:'d2',label:'Diagonal 2',units:['mm','cm','m']}]},
+};
+const SHAPE_RUANG = {
+  sr_kubus:{label:'Kubus',fields:[{id:'s',label:'Sisi',units:['mm','cm','m']}]},
+  sr_balok:{label:'Balok',fields:[{id:'p',label:'Panjang',units:['mm','cm','m']},{id:'l',label:'Lebar',units:['mm','cm','m']},{id:'t',label:'Tinggi',units:['mm','cm','m']}]},
+  sr_tabung:{label:'Tabung',fields:[{id:'r',label:'Jari-jari',units:['mm','cm','m']},{id:'t',label:'Tinggi',units:['mm','cm','m']}]},
+  sr_bola:{label:'Bola',fields:[{id:'r',label:'Jari-jari',units:['mm','cm','m']}]},
+  sr_kerucut:{label:'Kerucut',fields:[{id:'r',label:'Jari-jari alas',units:['mm','cm','m']},{id:'t',label:'Tinggi',units:['mm','cm','m']}]},
+  sr_limas:{label:'Limas',fields:[{id:'a',label:'Alas',units:['mm','cm','m']},{id:'b',label:'Lebar Alas',units:['mm','cm','m']},{id:'t',label:'Tinggi',units:['mm','cm','m']}]},
+};
+
+// Unit conversion to meters
+const unitToM = {mm:0.001,cm:0.01,m:1,km:1000,inch:0.0254,ft:0.3048};
+
+function selShape(btn,key) {
+  currentShapeDatar=key;
+  D('shapeDatarGrid').querySelectorAll('.sbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  initShapeDatar();
+}
+function initShapeDatar() {
+  const shape=SHAPE_DATAR[currentShapeDatar];
+  D('shapeDatarInputs').innerHTML='<div class="fr3">'+shape.fields.map(f=>`
+    <div class="fg">
+      <label class="fl">${f.label}</label>
+      <div class="iu">
+        <input type="number" class="fi" id="sd_${f.id}" placeholder="0">
+        <select class="usel" id="sd_${f.id}_u">${f.units.map(u=>`<option value="${u}">${u}</option>`).join('')}</select>
+      </div>
+    </div>`).join('')+'</div>';
+}
+function getSDVal(id) {
+  const v=parseFloat(D('sd_'+id)?.value)||0;
+  const u=D('sd_'+id+'_u')?.value||'m';
+  return v*(unitToM[u]||1);
+}
+function calcShapeDatar() {
+  const key=currentShapeDatar;
+  const pi=Math.PI;
+  let luas,keliling,extra=[];
+  switch(key){
+    case 'sd_lingkaran':{const r=getSDVal('r');luas=pi*r*r;keliling=2*pi*r;extra=[{l:'Diameter',v:fmtN(2*r)+' m'}];break;}
+    case 'sd_segitiga':{const a=getSDVal('a'),t=getSDVal('t'),s=getSDVal('s1')||Math.sqrt(a**2+t**2);luas=0.5*a*t;keliling=a+t+s;break;}
+    case 'sd_persegi':{const s=getSDVal('s');luas=s**2;keliling=4*s;break;}
+    case 'sd_persegipanjang':{const p=getSDVal('p'),l=getSDVal('l');luas=p*l;keliling=2*(p+l);break;}
+    case 'sd_trapesium':{const a=getSDVal('a'),b=getSDVal('b'),t=getSDVal('t'),s=Math.sqrt(t**2+((b-a)/2)**2);luas=0.5*(a+b)*t;keliling=a+b+2*s;break;}
+    case 'sd_layang':{const d1=getSDVal('d1'),d2=getSDVal('d2');luas=0.5*d1*d2;keliling=2*Math.sqrt((d1/2)**2+(d2/2)**2)*2;break;}
+  }
+  showResult('r_sd',[
+    {l:'Luas',v:fmtN(luas)+' m²'},{l:'Keliling',v:fmtN(keliling)+' m'},...extra
+  ]);
+}
+
+function selVolume(btn,key) {
+  currentShapeRuang=key;
+  D('shapeRuangGrid').querySelectorAll('.sbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  initShapeRuang();
+}
+function initShapeRuang() {
+  const shape=SHAPE_RUANG[currentShapeRuang];
+  D('shapeRuangInputs').innerHTML='<div class="fr3">'+shape.fields.map(f=>`
+    <div class="fg">
+      <label class="fl">${f.label}</label>
+      <div class="iu">
+        <input type="number" class="fi" id="sr_${f.id}" placeholder="0">
+        <select class="usel" id="sr_${f.id}_u">${f.units.map(u=>`<option value="${u}">${u}</option>`).join('')}</select>
+      </div>
+    </div>`).join('')+'</div>';
+}
+function getSRVal(id) {
+  const v=parseFloat(D('sr_'+id)?.value)||0;
+  const u=D('sr_'+id+'_u')?.value||'m';
+  return v*(unitToM[u]||1);
+}
+function calcShapeRuang() {
+  const key=currentShapeRuang, pi=Math.PI;
+  let vol,lp;
+  switch(key){
+    case 'sr_kubus':{const s=getSRVal('s');vol=s**3;lp=6*s**2;break;}
+    case 'sr_balok':{const p=getSRVal('p'),l=getSRVal('l'),t=getSRVal('t');vol=p*l*t;lp=2*(p*l+p*t+l*t);break;}
+    case 'sr_tabung':{const r=getSRVal('r'),t=getSRVal('t');vol=pi*r**2*t;lp=2*pi*r*(r+t);break;}
+    case 'sr_bola':{const r=getSRVal('r');vol=4/3*pi*r**3;lp=4*pi*r**2;break;}
+    case 'sr_kerucut':{const r=getSRVal('r'),t=getSRVal('t'),s=Math.sqrt(r**2+t**2);vol=1/3*pi*r**2*t;lp=pi*r*(r+s);break;}
+    case 'sr_limas':{const a=getSRVal('a'),b=getSRVal('b'),t=getSRVal('t');vol=1/3*a*b*t;lp=a*b+2*(0.5*a*Math.sqrt(t**2+(b/2)**2))+2*(0.5*b*Math.sqrt(t**2+(a/2)**2));break;}
+  }
+  showResult('r_sr',[{l:'Volume',v:fmtN(vol)+' m³'},{l:'Luas Permukaan',v:fmtN(lp)+' m²'}]);
+}
+
+function calcOhm() {
+  const vEl=D('ohm_v').value, iEl=D('ohm_i').value, rEl=D('ohm_r').value;
+  const empty=[!vEl,!iEl,!rEl];
+  if(empty.filter(Boolean).length!==1){showToast('Isi tepat 2 dari 3 field');return;}
+  const vu=parseFloat(D('ohm_v_u').value)||1, iu=parseFloat(D('ohm_i_u').value)||1, ru=parseFloat(D('ohm_r_u').value)||1;
+  let V,I,R;
+  if(!empty[0]&&!empty[1]){V=parseFloat(vEl)*vu;I=parseFloat(iEl)*iu;R=V/I;}
+  else if(!empty[0]&&!empty[2]){V=parseFloat(vEl)*vu;R=parseFloat(rEl)*ru;I=V/R;}
+  else{I=parseFloat(iEl)*iu;R=parseFloat(rEl)*ru;V=I*R;}
+  showResult('r_ohm',[
+    {l:'Tegangan V',v:fmtN(V)+' V'},{l:'Arus I',v:fmtN(I)+' A'},
+    {l:'Hambatan R',v:fmtN(R)+' Ω'},{l:'Daya P=V×I',v:fmtN(V*I)+' W'}
+  ]);
+}
+function calcPower() {
+  if(!need('pw_v','pw_i')) return;
+  const V=getVal('pw_v'), I=getVal('pw_i'), h=getVal('pw_h')||1;
+  const P=V*I, kWh=P*h/1000;
+  showResult('r_pw',[
+    {l:'Daya',v:fmtN(P)+' W ('+fmtN(P/1000)+' kW)'},
+    {l:'Konsumsi/hari',v:fmtN(kWh)+' kWh'},
+    {l:'Konsumsi/bulan',v:fmtN(kWh*30)+' kWh'},
+    {l:'Estimasi tagihan/bln*',v:'≈'+fmtRp(kWh*30*1445.7)},
+  ]);
+}
+function calcMotion() {
+  const vEl=D('mo_v').value, sEl=D('mo_s').value, tEl=D('mo_t').value;
+  const empty=[!vEl,!sEl,!tEl];
+  if(empty.filter(Boolean).length!==1){showToast('Isi tepat 2 dari 3 field');return;}
+  const vu=parseFloat(D('mo_v_u').value)||1, su=parseFloat(D('mo_s_u').value)||1, tu=parseFloat(D('mo_t_u').value)||1;
+  let V,S,T;
+  if(!empty[0]&&!empty[1]){V=parseFloat(vEl)*vu;S=parseFloat(sEl)*su;T=S/V;}
+  else if(!empty[0]&&!empty[2]){V=parseFloat(vEl)*vu;T=parseFloat(tEl)*tu;S=V*T;}
+  else{S=parseFloat(sEl)*su;T=parseFloat(tEl)*tu;V=S/T;}
+  showResult('r_mo',[
+    {l:'Kecepatan v',v:fmtN(V)+' m/s ('+fmtN(V*3.6)+' km/h)'},
+    {l:'Jarak s',v:fmtN(S)+' m ('+fmtN(S/1000)+' km)'},
+    {l:'Waktu t',v:fmtN(T)+' detik ('+fmtN(T/60)+' menit)'}
+  ]);
+}
+
+// ===== FORMULAS =====
+const FORMULA_DATA = {
+  aljabar:{
+    label:'Aljabar',
+    cards:[
+      {title:'Persamaan Kuadrat',items:[
+        {n:'Rumus ABC',e:'x = (−b ± √(b²−4ac)) / 2a'},
+        {n:'Diskriminan',e:'D = b² − 4ac'},
+        {n:'Vieta (jumlah akar)',e:'x₁+x₂ = −b/a'},
+        {n:'Vieta (hasil kali)',e:'x₁×x₂ = c/a'},
+      ]},
+      {title:'Eksponen & Logaritma',items:[
+        {n:'aᵐ × aⁿ',e:'= aᵐ⁺ⁿ'},{n:'aᵐ ÷ aⁿ',e:'= aᵐ⁻ⁿ'},
+        {n:'(aᵐ)ⁿ',e:'= aᵐⁿ'},{n:'logₐ(mn)',e:'= logₐm + logₐn'},
+        {n:'logₐ(m/n)',e:'= logₐm − logₐn'},{n:'logₐ(mⁿ)',e:'= n × logₐm'},
+        {n:'Perubahan basis',e:'logₐb = log b / log a'},
+      ]},
+    ]
+  },
+  geometri:{
+    label:'Geometri',
+    cards:[
+      {title:'Bangun Datar',items:[
+        {n:'Persegi',e:'L=s² ; K=4s'},{n:'Persegi Panjang',e:'L=p×l ; K=2(p+l)'},
+        {n:'Lingkaran',e:'L=πr² ; K=2πr'},{n:'Segitiga',e:'L=½×a×t'},
+        {n:'Trapesium',e:'L=½(a+b)×t'},{n:'Jajar Genjang',e:'L=a×t'},
+        {n:'Layang-layang',e:'L=½×d₁×d₂'},{n:'Belah Ketupat',e:'L=½×d₁×d₂'},
+      ]},
+      {title:'Bangun Ruang',items:[
+        {n:'Kubus',e:'V=s³ ; LP=6s²'},{n:'Balok',e:'V=p×l×t ; LP=2(pl+pt+lt)'},
+        {n:'Tabung',e:'V=πr²t ; LP=2πr(r+t)'},{n:'Bola',e:'V=⁴⁄₃πr³ ; LP=4πr²'},
+        {n:'Kerucut',e:'V=⅓πr²t ; LP=πr(r+s)'},{n:'Limas',e:'V=⅓×La×t'},
+      ]},
+      {title:'Teorema',items:[
+        {n:'Pythagoras',e:'c² = a² + b²'},
+        {n:'Sudut Segitiga',e:'∠A + ∠B + ∠C = 180°'},
+        {n:'Aturan Sinus',e:'a/sin A = b/sin B = c/sin C'},
+        {n:'Aturan Cosinus',e:'a² = b²+c²−2bc cos A'},
+      ]},
+    ]
+  },
+  trigonometri:{
+    label:'Trigonometri',
+    cards:[
+      {title:'Definisi Dasar',items:[
+        {n:'sin θ',e:'= sisi depan / hipotenusa'},
+        {n:'cos θ',e:'= sisi samping / hipotenusa'},
+        {n:'tan θ',e:'= sisi depan / sisi samping'},
+        {n:'cot θ',e:'= 1 / tan θ'},{n:'sec θ',e:'= 1 / cos θ'},{n:'csc θ',e:'= 1 / sin θ'},
+      ]},
+      {title:'Identitas Penting',items:[
+        {n:'sin²θ + cos²θ',e:'= 1'},{n:'1 + tan²θ',e:'= sec²θ'},
+        {n:'sin 2θ',e:'= 2 sin θ cos θ'},{n:'cos 2θ',e:'= cos²θ − sin²θ'},
+        {n:'tan 2θ',e:'= 2tanθ / (1−tan²θ)'},
+      ]},
+      {title:'Sudut Istimewa',items:[
+        {n:'sin 0°/30°/45°/60°/90°',e:'0, ½, ½√2, ½√3, 1'},
+        {n:'cos 0°/30°/45°/60°/90°',e:'1, ½√3, ½√2, ½, 0'},
+        {n:'tan 0°/30°/45°/60°/90°',e:'0, ⅓√3, 1, √3, ∞'},
+      ]},
+    ]
+  },
+  kalkulus:{
+    label:'Kalkulus',
+    cards:[
+      {title:'Turunan Dasar',items:[
+        {n:'d/dx [c]',e:'= 0'},{n:'d/dx [xⁿ]',e:'= n·xⁿ⁻¹'},
+        {n:'d/dx [sin x]',e:'= cos x'},{n:'d/dx [cos x]',e:'= −sin x'},
+        {n:'d/dx [eˣ]',e:'= eˣ'},{n:'d/dx [ln x]',e:'= 1/x'},
+        {n:'Aturan Rantai',e:'(f∘g)′ = f′(g(x))·g′(x)'},
+      ]},
+      {title:'Integral Dasar',items:[
+        {n:'∫ xⁿ dx',e:'= xⁿ⁺¹/(n+1) + C'},{n:'∫ eˣ dx',e:'= eˣ + C'},
+        {n:'∫ sin x dx',e:'= −cos x + C'},{n:'∫ cos x dx',e:'= sin x + C'},
+        {n:'∫ 1/x dx',e:'= ln|x| + C'},
+      ]},
+    ]
+  },
+  statistik:{
+    label:'Statistik',
+    cards:[
+      {title:'Ukuran Pusat',items:[
+        {n:'Mean (rata-rata)',e:'x̄ = Σxᵢ / n'},
+        {n:'Median',e:'nilai tengah data terurut'},
+        {n:'Modus',e:'nilai paling sering muncul'},
+      ]},
+      {title:'Ukuran Sebaran',items:[
+        {n:'Ragam (Varians)',e:'σ² = Σ(xᵢ−x̄)² / n'},
+        {n:'Simpangan Baku',e:'σ = √(Σ(xᵢ−x̄)²/n)'},
+        {n:'Jangkauan',e:'R = nilai max − nilai min'},
+        {n:'Z-Score',e:'z = (x − μ) / σ'},
+      ]},
+      {title:'Peluang',items:[
+        {n:'P(A)',e:'= n(A) / n(S)'},{n:'P(A∪B)',e:'= P(A)+P(B)−P(A∩B)'},
+        {n:'P(A∩B) bebas',e:'= P(A)×P(B)'},
+        {n:'Permutasi',e:'P(n,r) = n! / (n−r)!'},
+        {n:'Kombinasi',e:'C(n,r) = n! / r!(n−r)!'},
+      ]},
+    ]
+  },
+  fisika:{
+    label:'Fisika',
+    cards:[
+      {title:'Gerak & Mekanika',items:[
+        {n:'Kecepatan rata-rata',e:'v = s / t'},
+        {n:'GLB',e:'s = v₀·t'},{n:'GLBB',e:'s = v₀t + ½at²'},
+        {n:'Vt = V0 + at',e:''},{n:'Vt² = V0² + 2as',e:''},
+        {n:'Hukum Newton II',e:'F = m·a'},
+        {n:'Energi Kinetik',e:'Ek = ½mv²'},
+        {n:'Energi Potensial',e:'Ep = m·g·h'},
+        {n:'Usaha',e:'W = F·s·cos θ'},
+      ]},
+      {title:'Listrik',items:[
+        {n:"Ohm's Law",e:'V = I × R'},{n:'Daya Listrik',e:'P = V × I = I²R'},
+        {n:'Energi Listrik',e:'W = P × t'},{n:'Seri: R total',e:'= R1+R2+R3'},
+        {n:'Paralel: 1/R',e:'= 1/R1+1/R2+1/R3'},
+      ]},
+      {title:'Gelombang & Optika',items:[
+        {n:'v = λ × f',e:''},{n:'T = 1/f',e:''},
+        {n:'Indeks Bias',e:'n = c/v'},{n:'Snellius',e:'n1 sin θ1 = n2 sin θ2'},
+      ]},
+    ]
+  },
+};
+let currentFCat='aljabar';
+function initFormulas() {
+  const pills=D('fcatPills');
+  pills.innerHTML=Object.entries(FORMULA_DATA).map(([k,v])=>`<button class="fcat${k===currentFCat?' active':''}" onclick="selFCat('${k}',this)">${v.label}</button>`).join('');
+  renderFormulas();
+}
+function selFCat(key,btn) {
+  currentFCat=key;
+  document.querySelectorAll('.fcat').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderFormulas();
+}
+function renderFormulas() {
+  const data=FORMULA_DATA[currentFCat];
+  D('formulaGrid').innerHTML=data.cards.map(card=>`
+    <div class="fcard">
+      <div class="fcard-title">${card.title}</div>
+      ${card.items.map(item=>`<div class="fitem"><span class="fname">${item.n}</span><span class="fexpr">${item.e}</span></div>`).join('')}
+    </div>`).join('');
+}
+
+// ===== EXPORT =====
+function exportResult() {
+  const val=D('dVal').textContent, hist=D('dHist').textContent;
+  const histText=history.slice(0,10).map(h=>`${h.ex}  ${h.res}`).join('\n');
+  const text=`RAVEN KALKULATOR v2\n${'═'.repeat(32)}\nHasil: ${val}\n${hist?'Terakhir: '+hist:''}\n\nRIWAYAT:\n${histText||'—'}\n\nDiekspor: ${new Date().toLocaleString('id-ID')}`;
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));
+  a.download='raven-v2-'+Date.now()+'.txt';
+  a.click();
+  showToast('File berhasil diekspor!');
+}
+
+// ===== INIT =====
+initConverter();
+initShapeDatar();
+initShapeRuang();
+initFormulas();
+initGPARows();
+// Set default date
+D('umur_tl').value='2000-01-01';
+D('hpht').value=new Date(Date.now()-70*86400000).toISOString().split('T')[0];
+D('tz_input').value=new Date().toISOString().slice(0,16);
+updateDisp('0');
+</script>
+</body>
+</html>
